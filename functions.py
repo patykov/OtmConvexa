@@ -2,10 +2,11 @@
 
 # def backtracting_line_search(f, delta_x, ):
 
-def dichotomos_search(f, xl, xu, eps, max_iter=50):
+def dichotomos_search(f, xl, xu, uncertainty_range, max_iter=20):
     num_iter = 0
+    eps = uncertainty_range/10
 
-    while (xu - xl > eps) and (num_iter < max_iter):
+    while (xu - xl > uncertainty_range):
         x = (xu + xl)/2
         xa = x - eps/2
         xb = x + eps/2
@@ -16,8 +17,7 @@ def dichotomos_search(f, xl, xu, eps, max_iter=50):
         else:
             xl = xa
 
-        print('xl: {:.20f}, xu:{:.20f}, xa:{:.20f}, f(xa):{:.20f}, xb: {:.20f}, f(xb):{:.20f}\
-        '.format(
-            xl, xu, xa, f(xa), xb, f(xb)))
-        print('x: {:.20f}, f(x): {:.20f}, num_iter: {}, xu-xl:{:.20f}, xu-xl/2:{:.20f}\n'.format(
-            x, f(x), num_iter, xu - xl, (xu - xl)/2))
+        if num_iter >= max_iter:
+            break
+
+    return x, f(x), num_iter

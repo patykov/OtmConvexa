@@ -30,4 +30,8 @@ if __name__ == '__main__':
     f = get_f(args.exe_num)
     f_ = get_f_(args.exe_num)
 
-    functions.dichotomos_search(f, -0.5, 0.5, 10**(-5))
+    if args.exe_num == 4.2:
+        min_x, min_f_x, num_iter = functions.dichotomos_search(f, -0.5, 0.5, 10**(-5))
+        print('Exercise 4.2: Dichotomous Search')
+
+    print('x: {:.5f}, f(x): {:.5f}, num_iter: {}\n'.format(min_x, min_f_x, num_iter))
