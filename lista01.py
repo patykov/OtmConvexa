@@ -33,5 +33,8 @@ if __name__ == '__main__':
     if args.exe_num == 4.2:
         min_x, min_f_x, num_iter = functions.dichotomos_search(f, -0.5, 0.5, 10**(-5))
         print('Exercise 4.2: Dichotomous Search')
+        print('x: {:.5f}, f(x): {:.5f}, num_iter: {}\n'.format(min_x, min_f_x, num_iter))
 
-    print('x: {:.5f}, f(x): {:.5f}, num_iter: {}\n'.format(min_x, min_f_x, num_iter))
+        min_x, min_f_x, num_iter = functions.fibonacci_search(f, -0.5, 0.5, 10**(-5))
+        print('Exercise 4.2: Fibonacci Search')
+        print('x: {:.5f}, f(x): {:.5f}, num_iter: {}\n'.format(min_x, min_f_x, num_iter))

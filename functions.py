@@ -21,3 +21,40 @@ def dichotomos_search(f, xl, xu, uncertainty_range, max_iter=20):
             break
 
     return x, f(x), num_iter
+
+
+def fibonacci_search(f, xl, xu, uncertainty_range, max_iter=20):
+    Il = (xu - xl)
+    Fn = Il/(uncertainty_range)
+
+    F = [1, 1]
+    while F[-1] < Fn:
+        F.append(sum(F[-2:])*1.0)
+    n = len(F)
+
+    Il *= (F[n-2]/F[n-1])
+    xa = xu - Il
+    xb = xl + Il
+    fa = f(xa)
+    fb = f(xb)
+
+    for k in range(1, n-1):
+        Il *= (F[n-k-2]/F[n-k-1])
+
+        if fa >= fb:
+            xl = xa
+            xa = xb
+            xb = xl + Il
+            fa = fb
+            fb = f(xb)
+        else:
+            xu = xb
+            xb = xa
+            xa = xu - Il
+            fb = fa
+            fa = f(xa)
+
+        if xa >= xb:
+            break
+
+    return xa, fa, k
