@@ -23,7 +23,7 @@ def dichotomos_search(f, xl, xu, uncertainty_range, max_iter=20):
     return x, f(x), num_iter
 
 
-def fibonacci_search(f, xl, xu, uncertainty_range, max_iter=20):
+def fibonacci_search(f, xl, xu, uncertainty_range):
     Il = (xu - xl)
     Fn = Il/(uncertainty_range)
 
@@ -58,3 +58,41 @@ def fibonacci_search(f, xl, xu, uncertainty_range, max_iter=20):
             break
 
     return xa, fa, k
+
+
+def golden_section_search(f, xl, xu, uncertainty_range, max_iter=20):
+    Il = (xu - xl)
+    K = 1.618034
+
+    Il *= 1/K
+    xa = xu - Il
+    xb = xl + Il
+    fa = f(xa)
+    fb = f(xb)
+
+    k = 1
+    while (Il >= uncertainty_range) and (xa <= xb):
+        Il *= 1/K
+        k += 1
+
+        if fa >= fb:
+            xl = xa
+            xa = xb
+            xb = xl + Il
+            fa = fb
+            fb = f(xb)
+        else:
+            xu = xb
+            xb = xa
+            xa = xu - Il
+            fb = fa
+            fa = f(xa)
+
+    if fa > fb:
+        x = 1.0/2*(xb + xu)
+    elif fa == fb:
+        x = 1.0/2*(xa + xb)
+    elif fa < fb:
+        x = 1.0/2*(xl + xa)
+
+    return x, f(x), k
