@@ -1,3 +1,5 @@
+import numpy as np
+
 
 def dichotomos_search(f, xl, xu, uncertainty_range, max_iter=20):
     num_iter = 0
@@ -132,5 +134,54 @@ def quadratic_interpolation_search(f, x1, x3, uncertainty_range, max_iter=50):
                 x3 = x
                 f3 = fx
         x0 = x
+
+    return x, fx, k
+
+
+def cubic_interpolation_search(f, f_, x1, x2, x3, uncertainty_range, max_iter=50):
+    x0 = 10**99
+
+    f_1 = f_(x1)
+    f1 = f(x1)
+    f2 = f(x2)
+    f3 = f(x3)
+
+    for k in range(1, max_iter):
+        beta = (f2 - f1 + f_1*(x1 - x2)) / ((x1 - x2)**2)
+        gama = (f3 - f1 + f_1*(x1 - x3)) / ((x1 - x3)**2)
+        theta = (2*(x1**2) - x2*(x1 + x2)) / (x1 - x2)
+        psi = (2*(x1**2) - x3*(x1 + x3)) / (x1 - x3)
+
+        a3 = (beta - gama) / (theta - psi)
+        a2 = beta - theta*a3
+        a1 = f_1 - 2*a2*x1 - 3*a3*(x1**2)
+
+        if (a2**2 - 3*a1*a3) < 0:
+            raise Exception(
+                'Negative square root! Initializate the algorithm with different points.')
+        x_ext_1 = (-a2 - (a2**2 - 3*a1*a3)**(0.5)) / (3*a3)
+        x_ext_2 = (-a2 + (a2**2 - 3*a1*a3)**(0.5)) / (3*a3)
+
+        if 2*a2 + 6*a3*x_ext_1 > 0:
+            x = x_ext_1
+        elif 2*a2 + 6*a3*x_ext_2 > 0:
+            x = x_ext_2
+
+        fx = f(x)
+        if abs(x0 - x) < uncertainty_range:
+            break
+
+        m = np.argmax([f1, f2, f3])
+        x0 = x
+        if m == 1:
+            x1 = x
+            f1 = fx
+            f_1 = f_(x1)
+        elif m == 2:
+            x2 = x
+            f2 = fx
+        else:
+            x3 = x
+            f3 = fx
 
     return x, fx, k
