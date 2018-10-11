@@ -1,7 +1,4 @@
 
-
-# def backtracting_line_search(f, delta_x, ):
-
 def dichotomos_search(f, xl, xu, uncertainty_range, max_iter=20):
     num_iter = 0
     eps = uncertainty_range/10
@@ -89,10 +86,51 @@ def golden_section_search(f, xl, xu, uncertainty_range, max_iter=20):
             fa = f(xa)
 
     if fa > fb:
-        x = 1.0/2*(xb + xu)
+        x = 0.5*(xb + xu)
     elif fa == fb:
-        x = 1.0/2*(xa + xb)
+        x = 0.5*(xa + xb)
     elif fa < fb:
-        x = 1.0/2*(xl + xa)
+        x = 0.5*(xl + xa)
 
     return x, f(x), k
+
+
+def quadratic_interpolation_search(f, x1, x3, uncertainty_range, max_iter=50):
+    x0 = 10**99
+
+    x2 = 0.5*(x1 + x3)
+    f1 = f(x1)
+    f2 = f(x2)
+    f3 = f(x3)
+
+    for k in range(1, max_iter):
+        a = (x2 - x3)*f1
+        b = (x3 - x1)*f2
+        c = (x1 - x2)*f3
+
+        x = (a*(x2 + x3) + b*(x3 + x1) + c*(x1 + x2))/(2*(a + b + c))
+        fx = f(x)
+        if abs(x0 - x) < uncertainty_range:
+            break
+
+        if x1 < x < x2:
+            if fx <= f2:
+                x3 = x2
+                f3 = f2
+                x2 = x
+                f2 = fx
+            else:
+                x1 = x
+                f1 = fx
+        elif x2 < x < x3:
+            if fx <= f2:
+                x1 = x2
+                f1 = f2
+                x2 = x
+                f2 = fx
+            else:
+                x3 = x
+                f3 = fx
+        x0 = x
+
+    return x, fx, k
