@@ -60,9 +60,17 @@ if __name__ == '__main__':
         min_x, min_f_x, num_iter, delta_t))
 
     t = time.time()
-    # RUN WITH DIFFERENT POINTS
+    # RUN WITH DIFFERENT POINTS X1, X2, X3
     min_x, min_f_x, num_iter = functions.cubic_interpolation_search(f, f_, -0.2, 0.1, 0.2, 10**(-5))
     delta_t = (time.time() - t)*1000
     print('Exercise 4.2: Cubic Interpolation Search')
+    print('x: {:.5f}, f(x): {:.5f}, num_iter: {}, time: {:.5f} ms\n'.format(
+        min_x, min_f_x, num_iter, delta_t))
+
+    t = time.time()
+    # RUN WITH DIFFERENT POINTS X0
+    min_x, min_f_x, num_iter = functions.davies_swann_campey(f, 0.2, 10**(-5))
+    delta_t = (time.time() - t)*1000
+    print('Exercise 4.2: Davies, Swann and Campey Search')
     print('x: {:.5f}, f(x): {:.5f}, num_iter: {}, time: {:.5f} ms\n'.format(
         min_x, min_f_x, num_iter, delta_t))

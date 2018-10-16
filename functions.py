@@ -185,3 +185,82 @@ def cubic_interpolation_search(f, f_, x1, x2, x3, uncertainty_range, max_iter=50
             f3 = fx
 
     return x, fx, k
+
+
+def davies_swann_campey(f, x0, uncertainty_range):
+    # Values suggested in the book
+    delta = 0.1 * x0
+    K = 0.1
+
+    k = 0
+    while (1):
+        k +=1
+        # Step 2
+        jump = False
+        k += 1
+        x_1 = x0 - delta
+        x1 = x0 + delta
+
+        f0 = f(x0)
+        f1 = f(x1)
+
+        # Step 3
+        if f0 > f1:
+            p = 1
+        else:
+            f_1 = f(x_1)
+            if f_1 < f0:
+                p = -1
+            else: 
+                #f_1 >= f0 <= f1 
+                # Go to step 7
+                jump = True
+        
+        if not jump:
+            # Step 4
+            last_f = f0
+            last_2f = f0
+            last_x = x0
+            exp2 = 1
+            while (1):
+                new_f = f(last_x + (exp2 * p * delta))
+                if new_f > last_f:
+                    break
+                
+                last_2f = last_f
+                last_f = new_f
+                last_x +=  exp2 * p * delta
+                exp2 *= 2
+
+            # Step 5
+            xm = last_x + (exp2/2 * p * delta)
+            fm = f(xm)
+
+            # Step 6
+            if fm >= last_f:
+                if last_2f - fm == 0:
+                    x0 = x_1
+                else:
+                    x0 = x_1 + (exp2/4)*(p * delta * (last_2f - fm))/(last_2f - 2*last_f + fm)
+
+            else:
+                if last_f - new_f == 0:
+                    x0 = xm
+                else:
+                    x0 = xm + (exp2/4)*(p * delta * (last_f - new_f))/(last_f - 2*fm + new_f)
+                    
+            if exp2/2 * delta < uncertainty_range:
+                return x0, f(x0), k
+            else:
+                delta *= K
+                # Go to step 2
+                continue
+
+        # Step 7
+        if f_1 - f1 != 0:
+            x0 += (delta * (f_1 - f1))/(2*(f_1 - 2*f0 + f1))
+
+        if delta < uncertainty_range:
+            return x0, f(x0), k
+        else:
+            delta *= K
