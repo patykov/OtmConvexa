@@ -187,17 +187,14 @@ def cubic_interpolation_search(f, f_, x1, x2, x3, uncertainty_range, max_iter=50
     return x, fx, k
 
 
-def davies_swann_campey(f, x0, uncertainty_range):
+def davies_swann_campey(f, x0, uncertainty_range, max_iter=50):
     # Values suggested in the book
     delta = 0.1 * x0
     K = 0.1
 
-    k = 0
-    while (1):
-        k += 1
+    for k in range(1, max_iter):
         # Step 2
         jump = False
-        k += 1
         x_1 = x0 - delta
         x1 = x0 + delta
 
@@ -266,22 +263,25 @@ def davies_swann_campey(f, x0, uncertainty_range):
             return x0, f(x0), k
         else:
             delta *= K
+    print('Reached max iterations!')
+    return x0, f(x0), k
 
 
-def backtraking_line_search(f, f_, x, uncertainty_range):
+def backtraking_line_search(f, f_, x, uncertainty_range, max_iter=100):
     alfa = 0.2
     beta = 0.1
 
     t = 1
-    k = 1
-    while (1):
+    for k in range(1, max_iter):
         delta_x = -1 * np.sign(f_(x))
         while f(x + t * delta_x) > (f(x) + alfa * t * np.transpose(f_(x)) * delta_x):
             t *= beta
-            k += 1
 
         x_min = x + t * delta_x
         if abs(x - x_min) < uncertainty_range:
             return x_min, f(x_min), k
         else:
             x = x_min
+
+    print('Reached max iterations!')
+    return x_min, f(x_min), k
