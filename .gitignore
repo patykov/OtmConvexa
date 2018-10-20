@@ -1,6 +1,5 @@
 Livros/
 *.zip
-*.pdf
 *.pyc
 *.vscode
 *.DS_Store
