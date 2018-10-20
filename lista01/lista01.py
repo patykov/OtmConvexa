@@ -55,8 +55,10 @@ if __name__ == '__main__':
     f = get_f(args.exe_num)
     f_ = get_f_(args.exe_num)
 
+    functions.plot_f(f, args.exe_num, args.min, args.max)
+
     if args.exe_num == 4.2:
-        cubic_values = [[-0.2, 0.1, 0.2], [-0.3, 0.1, 0.3], [-0.5, 0.1, 0.5]]
+        cubic_values = [[-0.2, 0.1, 0.2], [-0.3, 0.2, 0.3], [0.1, 0.3, 0.5]]
         davies_values = [0.1, 0.2, 0.5]  # Dont work with negative or zero
         backtrack_values = [-0.5, 0.2, 0.5]
 
@@ -67,7 +69,7 @@ if __name__ == '__main__':
 
     if args.exe_num == 4.4:
         cubic_values = [[0, np.pi, 2 * np.pi], [0, 1.0, np.pi], [1, 2, 3], [2, 3, 4]]
-        davies_values = [0, 2, np.pi, 2 * np.pi]  # Dont work with negative or zero
+        davies_values = [2, np.pi, 2 * np.pi]  # Dont work with negative or zero
         backtrack_values = [0, 2, np.pi, 2 * np.pi]
 
     print('Exercise {}:\n'.format(args.exe_num))

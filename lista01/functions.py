@@ -1,4 +1,19 @@
 import numpy as np
+import matplotlib.pyplot as plt
+
+
+def plot_f(f, num_exe, minv, maxv):
+    x = np.arange(minv, maxv, 0.01)
+    fx = [f(xi) for xi in x]
+
+    fig, ax = plt.subplots()
+    ax.plot(x, fx)
+
+    ax.set(xlabel='x', ylabel='f(x)')
+    ax.grid()
+
+    fig.savefig('exe{}_function.png'.format(num_exe))
+    plt.show()
 
 
 def dichotomos_search(f, xl, xu, uncertainty_range, max_iter=20):
