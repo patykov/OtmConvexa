@@ -74,29 +74,29 @@ if __name__ == '__main__':
 
     print('Exercise {}:\n'.format(args.exe_num))
     t = time.time()
-    min_x, min_f_x, num_iter = functions.dichotomos_search(f, args.min, args.max, args.eps)
+    min_x, min_f_x, num_iter = functions.dichotomos_search([f], [args.min, args.max], args.eps)
     delta_t = (time.time() - t) * 1000
     print('Dichotomous Search')
     print('x: {:.5f}, f(x): {:.5f}, num_iter: {}, time: {:.5f} ms'.format(
         min_x, min_f_x, num_iter, delta_t))
 
     t = time.time()
-    min_x, min_f_x, num_iter = functions.fibonacci_search(f, args.min, args.max, args.eps)
+    min_x, min_f_x, num_iter = functions.fibonacci_search([f], [args.min, args.max], args.eps)
     delta_t = (time.time() - t) * 1000
     print('\nFibonacci Search')
     print('x: {:.5f}, f(x): {:.5f}, num_iter: {}, time: {:.5f} ms'.format(
         min_x, min_f_x, num_iter, delta_t))
 
     t = time.time()
-    min_x, min_f_x, num_iter = functions.golden_section_search(f, args.min, args.max, args.eps)
+    min_x, min_f_x, num_iter = functions.golden_section_search([f], [args.min, args.max], args.eps)
     delta_t = (time.time() - t) * 1000
     print('\nGolden Section Search')
     print('x: {:.5f}, f(x): {:.5f}, num_iter: {}, time: {:.5f} ms'.format(
         min_x, min_f_x, num_iter, delta_t))
 
     t = time.time()
-    min_x, min_f_x, num_iter = functions.quadratic_interpolation_search(
-        f, args.min, args.max, args.eps)
+    min_x, min_f_x, num_iter = functions.quadratic_interpolation_search([f], [args.min, args.max],
+                                                                        args.eps)
     delta_t = (time.time() - t) * 1000
     print('\nQuadratic Interpolation Search')
     print('x: {:.5f}, f(x): {:.5f}, num_iter: {}, time: {:.5f} ms'.format(
@@ -105,8 +105,7 @@ if __name__ == '__main__':
     print('\nCubic Interpolation Search')
     for values in cubic_values:
         t = time.time()
-        min_x, min_f_x, num_iter = functions.cubic_interpolation_search(
-            f, f_, values[0], values[1], values[2], args.eps)
+        min_x, min_f_x, num_iter = functions.cubic_interpolation_search([f, f_], values, args.eps)
         delta_t = (time.time() - t) * 1000
         print('x: {:.5f}, f(x): {:.5f}, num_iter: {}, time: {:.5f} ms, for {}'.format(
             min_x, min_f_x, num_iter, delta_t, values))
@@ -114,7 +113,7 @@ if __name__ == '__main__':
     print('\nDavies, Swann and Campey Search')
     for value in davies_values:
         t = time.time()
-        min_x, min_f_x, num_iter = functions.davies_swann_campey(f, value, args.eps)
+        min_x, min_f_x, num_iter = functions.davies_swann_campey([f], [value], args.eps)
         delta_t = (time.time() - t) * 1000
         print('x: {:.5f}, f(x): {:.5f}, num_iter: {}, time: {:.5f} ms, for {}'.format(
             min_x, min_f_x, num_iter, delta_t, value))
@@ -122,7 +121,7 @@ if __name__ == '__main__':
     print('\nBacktraking Line Search')
     for value in backtrack_values:
         t = time.time()
-        min_x, min_f_x, num_iter = functions.backtraking_line_search(f, f_, value, args.eps)
+        min_x, min_f_x, num_iter = functions.backtraking_line_search([f, f_], [value], args.eps)
         delta_t = (time.time() - t) * 1000
         print('x: {:.5f}, f(x): {:.5f}, num_iter: {}, time: {:.5f} ms, for {}'.format(
             min_x, min_f_x, num_iter, delta_t, value))

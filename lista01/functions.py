@@ -16,7 +16,11 @@ def plot_f(f, num_exe, minv, maxv):
     plt.show()
 
 
-def dichotomos_search(f, xl, xu, uncertainty_range, max_iter=20):
+def dichotomos_search(f_vec, x_vec, uncertainty_range, max_iter=20):
+    f = f_vec[0]
+    xl = x_vec[0]
+    xu = x_vec[1]
+
     num_iter = 0
     eps = uncertainty_range / 10
 
@@ -37,7 +41,11 @@ def dichotomos_search(f, xl, xu, uncertainty_range, max_iter=20):
     return x, f(x), num_iter
 
 
-def fibonacci_search(f, xl, xu, uncertainty_range):
+def fibonacci_search(f_vec, x_vec, uncertainty_range):
+    f = f_vec[0]
+    xl = x_vec[0]
+    xu = x_vec[1]
+
     Il = (xu - xl)
     Fn = Il / (uncertainty_range)
 
@@ -74,11 +82,15 @@ def fibonacci_search(f, xl, xu, uncertainty_range):
     return xa, fa, k
 
 
-def golden_section_search(f, xl, xu, uncertainty_range, max_iter=20):
-    Il = (xu - xl)
+def golden_section_search(f_vec, x_vec, uncertainty_range, max_iter=20):
+    f = f_vec[0]
+    xl = x_vec[0]
+    xu = x_vec[1]
+
+    Il = xu - xl
     K = 1.618034
 
-    Il *= 1 / K
+    Il = Il / K
     xa = xu - Il
     xb = xl + Il
     fa = f(xa)
@@ -112,7 +124,11 @@ def golden_section_search(f, xl, xu, uncertainty_range, max_iter=20):
     return x, f(x), k
 
 
-def quadratic_interpolation_search(f, x1, x3, uncertainty_range, max_iter=50):
+def quadratic_interpolation_search(f_vec, x_vec, uncertainty_range, max_iter=50):
+    f = f_vec[0]
+    x1 = x_vec[0]
+    x3 = x_vec[1]
+
     x0 = 10**99
 
     x2 = 0.5 * (x1 + x3)
@@ -153,7 +169,13 @@ def quadratic_interpolation_search(f, x1, x3, uncertainty_range, max_iter=50):
     return x, fx, k
 
 
-def cubic_interpolation_search(f, f_, x1, x2, x3, uncertainty_range, max_iter=50):
+def cubic_interpolation_search(f_vec, x_vec, uncertainty_range, max_iter=50):
+    f = f_vec[0]
+    f_ = f_vec[1]
+    x1 = x_vec[0]
+    x2 = x_vec[1]
+    x3 = x_vec[2]
+
     x0 = 10**99
 
     f_1 = f_(x1)
@@ -202,7 +224,10 @@ def cubic_interpolation_search(f, f_, x1, x2, x3, uncertainty_range, max_iter=50
     return x, fx, k
 
 
-def davies_swann_campey(f, x0, uncertainty_range, max_iter=50):
+def davies_swann_campey(f_vec, x_vec, uncertainty_range, max_iter=50):
+    f = f_vec[0]
+    x0 = x_vec[0]
+
     # Values suggested in the book
     delta = 0.1 * x0
     K = 0.1
@@ -282,7 +307,11 @@ def davies_swann_campey(f, x0, uncertainty_range, max_iter=50):
     return x0, f(x0), k
 
 
-def backtraking_line_search(f, f_, x, uncertainty_range, max_iter=100):
+def backtraking_line_search(f_vec, x_vec, uncertainty_range, max_iter=100):
+    f = f_vec[0]
+    f_ = f_vec[1]
+    x = x_vec[0]
+
     alfa = 0.2
     beta = 0.1
 
