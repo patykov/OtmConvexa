@@ -59,16 +59,15 @@ def get_defined_functions(exe_num):
         def get_f_(x0, d):
             def f_(alpha):
                 x = x0 + alpha * d
-                a = x[0] + 10 * x[1]
-                b = (x[1] - x[2])**3
-                return 22 * a - 3 * b
+                return 2 * (x[0] + 10 * x[1]) * (d[0] + 10 * d[1]) + 10 * (
+                    x[2] - x[3]) * (d[2] - d[3]) + 4 * (x[1] - 2 * x[2])**3 * (
+                    d[1] - 2 * d[2]) + 400 * (x[0] - x[3])**3 * (d[0] - d[3])
 
             return f_
 
         def g(x):
             a = 400 * (x[0] - x[3])**3
             b = (x[1] - 2 * x[2])**3
-
             return np.array([
                 2 * x[0] + 20 * x[1] + a, 20 * x[0] + 200 * x[1] + 4 * b,
                 10 * x[2] - 10 * x[3] - 8 * b, 10 * x[3] - 10 * x[2] - a
@@ -201,7 +200,7 @@ if __name__ == '__main__':
             [x_min, fx_min, num_iter] = functions.steepest_descent(
                 get_f, get_f_, g, line_search.golden_section_search, x, args.min, args.max, eps)
             delta_t = (time.time() - t) * 1000
-            print('x: [{:.5f}, {:.5f}, {:.5f}, {:.5f}], f(x): {:.5f}, num_iter: {}, time: {:.5f} ms\
+            print('x: [{:.5f}, {:.5f}, {:.5f}, {:.5f}], f(x): {:.5e}, num_iter: {}, time: {:.5f} ms\
             \n'.format(x_min[0], x_min[1], x_min[2], x_min[3], fx_min, num_iter, delta_t))
 
             print('Quadratic Interpolation Search')
@@ -210,7 +209,7 @@ if __name__ == '__main__':
                 get_f, get_f_, g, line_search.quadratic_interpolation_search, x, args.min, args.max,
                 eps)
             delta_t = (time.time() - t) * 1000
-            print('x: [{:.5f}, {:.5f}, {:.5f}, {:.5f}], f(x): {:.5f}, num_iter: {}, time: {:.5f} ms\
+            print('x: [{:.5f}, {:.5f}, {:.5f}, {:.5f}], f(x): {:.5e}, num_iter: {}, time: {:.5f} ms\
             \n'.format(x_min[0], x_min[1], x_min[2], x_min[3], fx_min, num_iter, delta_t))
 
             print('Backtraking Line Search')
@@ -218,7 +217,7 @@ if __name__ == '__main__':
             [x_min, fx_min, num_iter] = functions.steepest_descent(
                 get_f, get_f_, g, line_search.backtraking_line_search, x, args.min, args.max, eps)
             delta_t = (time.time() - t) * 1000
-            print('x: [{:.5f}, {:.5f}, {:.5f}, {:.5f}], f(x): {:.5f}, num_iter: {}, time: {:.5f}ms \
+            print('x: [{:.5f}, {:.5f}, {:.5f}, {:.5f}], f(x): {:.5e}, num_iter: {}, time: {:.5f}ms \
             \n'.format(x_min[0], x_min[1], x_min[2], x_min[3], fx_min, num_iter, delta_t))
 
             print('\n---- Modified Newton -----')
@@ -227,7 +226,7 @@ if __name__ == '__main__':
             [x_min, fx_min, num_iter] = functions.modified_newton(
                 g, H, get_f, get_f_, line_search.golden_section_search, x, args.min, args.max, eps)
             delta_t = (time.time() - t) * 1000
-            print('x: [{:.5f}, {:.5f}, {:.5f}, {:.5f}], f(x): {:.5f}, num_iter: {}, time: {:.5f} ms\
+            print('x: [{:.5f}, {:.5f}, {:.5f}, {:.5f}], f(x): {:.5e}, num_iter: {}, time: {:.5f} ms\
             \n'.format(x_min[0], x_min[1], x_min[2], x_min[3], fx_min, num_iter, delta_t))
 
             print('Quadratic Interpolation Search')
@@ -236,7 +235,7 @@ if __name__ == '__main__':
                 g, H, get_f, get_f_, line_search.quadratic_interpolation_search, x, args.min,
                 args.max, eps)
             delta_t = (time.time() - t) * 1000
-            print('x: [{:.5f}, {:.5f}, {:.5f}, {:.5f}], f(x): {:.5f}, num_iter: {}, time: {:.5f} ms\
+            print('x: [{:.5f}, {:.5f}, {:.5f}, {:.5f}], f(x): {:.5e}, num_iter: {}, time: {:.5f} ms\
             \n'.format(x_min[0], x_min[1], x_min[2], x_min[3], fx_min, num_iter, delta_t))
 
             print('Backtraking Line Search')
@@ -245,5 +244,32 @@ if __name__ == '__main__':
                 g, H, get_f, get_f_, line_search.backtraking_line_search, x, args.min, args.max,
                 eps)
             delta_t = (time.time() - t) * 1000
-            print('x: [{:.5f}, {:.5f}, {:.5f}, {:.5f}], f(x): {:.5f}, num_iter: {}, time: {:.5f} ms\
+            print('x: [{:.5f}, {:.5f}, {:.5f}, {:.5f}], f(x): {:.5e}, num_iter: {}, time: {:.5f} ms\
+            \n'.format(x_min[0], x_min[1], x_min[2], x_min[3], fx_min, num_iter, delta_t))
+
+            print('\n---- Gauss Newton -----')
+            print('Golden Section Search')
+            t = time.time()
+            [x_min, fx_min, num_iter] = functions.gauss_newton(
+                f, get_f, get_f_, line_search.golden_section_search, x, args.min, args.max, eps)
+            delta_t = (time.time() - t) * 1000
+            print('x: [{:.5f}, {:.5f}, {:.5f}, {:.5f}], f(x): {:.5e}, num_iter: {}, time: {:.5f} ms\
+            \n'.format(x_min[0], x_min[1], x_min[2], x_min[3], fx_min, num_iter, delta_t))
+
+            print('Quadratic Interpolation Search')
+            t = time.time()
+            [x_min, fx_min, num_iter] = functions.gauss_newton(
+                f, get_f, get_f_, line_search.quadratic_interpolation_search, x, args.min,
+                args.max, eps)
+            delta_t = (time.time() - t) * 1000
+            print('x: [{:.5f}, {:.5f}, {:.5f}, {:.5f}], f(x): {:.5e}, num_iter: {}, time: {:.5f} ms\
+            \n'.format(x_min[0], x_min[1], x_min[2], x_min[3], fx_min, num_iter, delta_t))
+
+            print('Backtraking Line Search')
+            t = time.time()
+            [x_min, fx_min, num_iter] = functions.gauss_newton(
+                f, get_f, get_f_, line_search.backtraking_line_search, x, args.min, args.max,
+                eps)
+            delta_t = (time.time() - t) * 1000
+            print('x: [{:.5f}, {:.5f}, {:.5f}, {:.5f}], f(x): {:.5e}, num_iter: {}, time: {:.5f} ms\
             \n'.format(x_min[0], x_min[1], x_min[2], x_min[3], fx_min, num_iter, delta_t))
