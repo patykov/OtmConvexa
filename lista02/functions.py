@@ -1,6 +1,9 @@
 import numpy as np
 import scipy.linalg
+import matplotlib as m
+# from matplotlib import cm
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 
 def fp(x):
@@ -13,16 +16,29 @@ def J(x):
                      [20 * x[0] - 20 * x[3], 0, 0, 20 * x[3] - 20 * x[0]]])
 
 
-def plot_f(f, minv, maxv):
-    x = np.arange(minv, maxv, 0.01)
-    fx = [f(xi) for xi in x]
+def plot3d_f(f, num_exe, minv, maxv):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
 
-    fig, ax = plt.subplots()
-    ax.plot(x, fx)
+    cdict = {
+        'red': ((0.0, 0.25, .25), (0.7, .59, .59), (1., 1., 1.)),
+        'green': ((0.0, 0.0, 0.0), (0.02, .45, .45), (1., .97, .97)),
+        'blue': ((0.0, 1.0, 1.0), (0.02, .75, .75), (1., 0.45, 0.45))
+    }
 
-    ax.set(xlabel='x', ylabel='f(x)')
-    ax.grid()
+    cm = m.colors.LinearSegmentedColormap('my_colormap', cdict, 1024)
 
+    x = y = np.arange(minv, maxv, 0.01)
+    X, Y = np.meshgrid(x, y)
+    zs = np.array([f([xi, yi]) for xi, yi in zip(np.ravel(X), np.ravel(Y))])
+    Z = zs.reshape(X.shape)
+
+    ax.plot_surface(X, Y, Z, cmap=cm)  #cmap=cm.coolwarm)
+    ax.set_xlabel('x1')
+    ax.set_ylabel('x2')
+    ax.set_zlabel('f')
+
+    fig.savefig('exe{}_function.png'.format(num_exe))
     plt.show()
 
 
@@ -46,7 +62,7 @@ def steepest_descent(get_f, get_f_, g, line_search, x0, min_x, max_x, eps, max_i
     return x, fx_star, k
 
 
-def steepest_descent_no_line_search(f, g, line_search, x, min_x, max_x, eps, max_iter=15000):
+def steepest_descent_no_line_search(f, g, x, min_x, max_x, eps, max_iter=15000):
     alpha = 1.0
     fx = f(x)
     k = 1

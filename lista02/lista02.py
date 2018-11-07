@@ -103,8 +103,10 @@ if __name__ == '__main__':
 
     f, g, H, get_f, get_f_ = get_defined_functions(args.exe_num)
 
+    # functions.plot3d_f(f, args.exe_num, args.min, args.max)
+
     if args.exe_num == 5.7:
-        print('Exercise 5.8 - Steepest Descent')
+        print('Exercise 5.7 - Steepest Descent')
         for x in points:
             print('\nInitial point: ' + str(x))
             print('Golden Section Search')
@@ -136,26 +138,9 @@ if __name__ == '__main__':
         print('Exercise 5.8 - Steepest Descent without line search')
         for x in points:
             print('\nInitial point: ' + str(x))
-            print('Golden Section Search')
             t = time.time()
             [x_min, fx_min, num_iter] = functions.steepest_descent_no_line_search(
-                f, g, line_search.golden_section_search, x, args.min, args.max, eps)
-            delta_t = (time.time() - t) * 1000
-            print('x: [{:.5f}, {:.5f}], f(x): {:.5f}, num_iter: {}, time: {:.5f} ms\n'.format(
-                x_min[0], x_min[1], fx_min, num_iter, delta_t))
-
-            print('Quadratic Interpolation Search')
-            t = time.time()
-            [x_min, fx_min, num_iter] = functions.steepest_descent_no_line_search(
-                f, g, line_search.quadratic_interpolation_search, x, args.min, args.max, eps)
-            delta_t = (time.time() - t) * 1000
-            print('x: [{:.5f}, {:.5f}], f(x): {:.5f}, num_iter: {}, time: {:.5f} ms\n'.format(
-                x_min[0], x_min[1], fx_min, num_iter, delta_t))
-
-            print('Backtraking Line Search')
-            t = time.time()
-            [x_min, fx_min, num_iter] = functions.steepest_descent_no_line_search(
-                f, g, line_search.backtraking_line_search, x, args.min, args.max, eps)
+                f, g, x, args.min, args.max, eps)
             delta_t = (time.time() - t) * 1000
             print('x: [{:.5f}, {:.5f}], f(x): {:.5f}, num_iter: {}, time: {:.5f} ms\n'.format(
                 x_min[0], x_min[1], fx_min, num_iter, delta_t))
