@@ -140,7 +140,7 @@ if __name__ == '__main__':
             print('\nInitial point: ' + str(x))
             t = time.time()
             [x_min, fx_min, num_iter] = functions.steepest_descent_no_line_search(
-                f, g, x, args.min, args.max, eps)
+                f, g, x, eps)
             delta_t = (time.time() - t) * 1000
             print('x: [{:.5f}, {:.5f}], f(x): {:.5f}, num_iter: {}, time: {:.5f} ms\n'.format(
                 x_min[0], x_min[1], fx_min, num_iter, delta_t))

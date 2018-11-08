@@ -46,14 +46,13 @@ def steepest_descent(get_f, get_f_, g, line_search, x0, min_x, max_x, eps, max_i
     x = x0
     k = 1
     while (k < max_iter):
-        d = -1 * g(x)
+        d = -0.01 * g(x)
         f = get_f(x, d)
         f_ = get_f_(x, d)
 
         [alpha_star, fx_star, k_star] = line_search([f, f_], [min_x, max_x], eps)
         x += alpha_star * d
-        # min_x = alpha_star * 0.5
-        # max_x = alpha_star * 1.5
+
         if np.all(abs(alpha_star * d) < eps):
             return x, fx_star, k
         k += 1
@@ -62,7 +61,7 @@ def steepest_descent(get_f, get_f_, g, line_search, x0, min_x, max_x, eps, max_i
     return x, fx_star, k
 
 
-def steepest_descent_no_line_search(f, g, x, min_x, max_x, eps, max_iter=15000):
+def steepest_descent_no_line_search(f, g, x, eps, max_iter=15000):
     alpha = 1.0
     fx = f(x)
     k = 1
@@ -93,17 +92,21 @@ def modified_newton(g, H, get_f, get_f_, line_search, x0, min_x, max_x, eps, max
         gx = g(x)
         Hx = H(x)
 
-        # if not np.all(np.linalg.eigvals(Hx) > 0):
+        # --- Test1 beta ---
+        # if np.all(np.linalg.eigvals(Hx) > 0):
         #     # Is positive definite
-        #     beta = 10**(5)
+        #     beta = 10**(-5)
         #     # beta = 1
         # else:
-        #     beta = 10**(-5)
+        #     beta = 10**(5)
 
         # Hx = (Hx + beta * np.eye(len(x))) / (1 + beta)
+        # --- end Test1 beta ---
 
+        # --- Test2 beta ---  Works amazingly better!
         if not np.all(np.linalg.eigvals(Hx) > 0):
             Hx = (Hx + np.eye(len(x))) / 2
+        # --- end Test1 beta ---
 
         H_inv = np.linalg.inv(Hx)
         d = -1 * np.dot(H_inv, gx)
@@ -112,8 +115,9 @@ def modified_newton(g, H, get_f, get_f_, line_search, x0, min_x, max_x, eps, max
         f_ = get_f_(x, d)
         [alpha_star, fx_star, k_star] = line_search([f, f_], [min_x, max_x], eps)
         x += alpha_star * d
-        min_x = alpha_star * 0.5
-        max_x = alpha_star * 1.5
+
+        min_x = alpha_star - alpha_star / 2
+        max_x = alpha_star + alpha_star / 2
 
         if np.all(abs(alpha_star * d) < eps):
             return x, fx_star, k
