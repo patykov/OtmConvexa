@@ -33,7 +33,7 @@ def get_defined_functions(exe_num):
 
         return f, g, H
 
-    elif exe_num == 6.2:
+    elif exe_num in [6.2, 7.7]:
 
         def f(x):
             return 100 * (x[1] - x[0]**2)**2 + (1 - x[0])**2
@@ -41,7 +41,6 @@ def get_defined_functions(exe_num):
         def g(x):
             a = 200 * (x[1] - x[0]**2)
             return np.array([(-2 * x[0] * a) - (2 * (1 - x[0])), a])
-            # [2 * x[0] - 400 * x[0] * (-x[0]**2 + x[1]) - 2, -200 * x[0]**2 + 200 * x[1]]
 
         def get_f(x0, d):
             def f(alpha):
@@ -59,7 +58,7 @@ def get_defined_functions(exe_num):
 
         return f, g, get_f, get_f_
 
-    elif exe_num == 6.3:
+    elif exe_num in [6.3, 7.8]:
 
         def f(x):
             return 5 * x[0]**2 - 9 * x[0] * x[1] + 4.075 * x[1]**2 + x[0]
@@ -77,18 +76,19 @@ def get_points(exe_num):
     if exe_num == 6.1:
         return [1] * 16
 
-    if exe_num == 6.2:
-        return [[-2, 2], [2, -2], [-2, -2]]
+    if exe_num in [6.2, 7.7]:
+        return [[-2.0, 2.0], [2.0, -2.0], [-2.0, -2.0]]
 
     if exe_num == 6.3:
         return [1, 1]
+
+    if exe_num == 7.8:
+        return [0, 0]
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-exe_num', help='Number of the exercise.', required=True, type=float)
-    # parser.add_argument('-min', help='Initial min value.', required=True, type=float)
-    # parser.add_argument('-max', help='Initial max value.', required=True, type=float)
     args = parser.parse_args()
 
     eps = 10**(-6)
@@ -112,11 +112,11 @@ if __name__ == '__main__':
             delta_t = (time.time() - t) * 1000
             print('x: {}, fx: {:.5f}, num_iter: {}, time: {:.5f} ms\n'.format(x, fx, k, delta_t))
 
-    elif args.exe_num == 6.3:  # fazer para mais pontos
+    elif args.exe_num == 6.3:
+        f, g, H = get_defined_functions(args.exe_num)
         for num_max_iter in [1, 2, 15000]:
             print('\n\nMax iterations: {}'.format(num_max_iter))
             print('Exercise 6.3 - Gradient Descent')
-            f, g, H = get_defined_functions(args.exe_num)
             t = time.time()
             x, fx, k = functions.gradient_descent(
                 f, g, H, points, eps=3 * 10**(-7), max_iter=num_max_iter)
@@ -129,3 +129,26 @@ if __name__ == '__main__':
                 f, g, points, eps=3 * 10**(-7), max_iter=num_max_iter)
             delta_t = (time.time() - t) * 1000
             print('x: {}, fx: {:.5f}, num_iter: {}, time: {:.5f} ms\n'.format(x, fx, k, delta_t))
+
+    elif args.exe_num == 7.7:
+        f, g, get_f, get_f_ = get_defined_functions(args.exe_num)
+        for p in points:
+            print('Ponto Inicial: {}'.format(p))
+            t = time.time()
+            x, fx, k = functions.dfp(f, g, p, eps)
+            delta_t = (time.time() - t) * 1000
+            print('x: {}, fx: {:.5f}, num_iter: {}, time: {:.5f} ms\n'.format(x, fx, k, delta_t))
+
+    elif args.exe_num == 7.8:
+        f, g, H = get_defined_functions(args.exe_num)
+        print('Exercise 7.8 - BFGS')
+        t = time.time()
+        x, fx, k = functions.bfgs(f, g, points, eps1=3 * 10**(-7))
+        delta_t = (time.time() - t) * 1000
+        print('x: {}, fx: {:.5f}, num_iter: {}, time: {:.5f} ms\n'.format(x, fx, k, delta_t))
+
+        print('Exercise 7.8 - DFP')
+        t = time.time()
+        x, fx, k = functions.dfp(f, g, points, eps1=3 * 10**(-7))
+        delta_t = (time.time() - t) * 1000
+        print('x: {}, fx: {:.5f}, num_iter: {}, time: {:.5f} ms\n'.format(x, fx, k, delta_t))
