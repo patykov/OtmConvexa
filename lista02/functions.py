@@ -1,9 +1,7 @@
+import matplotlib as m
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy.linalg
-import matplotlib as m
-# from matplotlib import cm
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
 
 def fp(x):
@@ -33,7 +31,7 @@ def plot3d_f(f, num_exe, minv, maxv):
     zs = np.array([f([xi, yi]) for xi, yi in zip(np.ravel(X), np.ravel(Y))])
     Z = zs.reshape(X.shape)
 
-    ax.plot_surface(X, Y, Z, cmap=cm)  #cmap=cm.coolwarm)
+    ax.plot_surface(X, Y, Z, cmap=cm)  # cmap=cm.coolwarm)
     ax.set_xlabel('x1')
     ax.set_ylabel('x2')
     ax.set_zlabel('f')
@@ -106,7 +104,7 @@ def modified_newton(g, H, get_f, get_f_, line_search, x0, min_x, max_x, eps, max
         # --- Test2 beta ---  Works amazingly better!
         if not np.all(np.linalg.eigvals(Hx) > 0):
             Hx = (Hx + np.eye(len(x))) / 2
-        # --- end Test1 beta ---
+        # --- end Test2 beta ---
 
         H_inv = np.linalg.inv(Hx)
         d = -1 * np.dot(H_inv, gx)
