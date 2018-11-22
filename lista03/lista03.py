@@ -1,9 +1,11 @@
 import argparse
 import time
-
 import numpy as np
-
 import functions
+
+import sys
+sys.path.append('../')  # Fix it later, import from other dir not working
+from lista02 import functions as f2
 
 
 def get_defined_functions(exe_num):
@@ -111,8 +113,19 @@ if __name__ == '__main__':
             print('x: {}, fx: {:.5f}, num_iter: {}, time: {:.5f} ms\n'.format(x, fx, k, delta_t))
 
     elif args.exe_num == 6.3:  # fazer para mais pontos
-        f, g, H = get_defined_functions(args.exe_num)
-        t = time.time()
-        x, fx, k = functions.gradient_descent(f, g, H, points, eps)
-        delta_t = (time.time() - t) * 1000
-        print('x: {}, fx: {:.5f}, num_iter: {}, time: {:.5f} ms\n'.format(x, fx, k, delta_t))
+        for num_max_iter in [1, 2, 15000]:
+            print('\n\nMax iterations: {}'.format(num_max_iter))
+            print('Exercise 6.3 - Gradient Descent')
+            f, g, H = get_defined_functions(args.exe_num)
+            t = time.time()
+            x, fx, k = functions.gradient_descent(
+                f, g, H, points, eps=3 * 10**(-7), max_iter=num_max_iter)
+            delta_t = (time.time() - t) * 1000
+            print('x: {}, fx: {:.5f}, num_iter: {}, time: {:.5f} ms\n'.format(x, fx, k, delta_t))
+
+            print('Exercise 6.3 - Steepest Descent without line search')
+            t = time.time()
+            x, fx, k = f2.steepest_descent_no_line_search(
+                f, g, points, eps=3 * 10**(-7), max_iter=num_max_iter)
+            delta_t = (time.time() - t) * 1000
+            print('x: {}, fx: {:.5f}, num_iter: {}, time: {:.5f} ms\n'.format(x, fx, k, delta_t))

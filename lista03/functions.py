@@ -8,7 +8,7 @@ from lista01 import functions as f1
 def gradient_descent(f, g, H, x, eps, max_iter=15000):
     gx = g(x)
     d = -gx
-    k = 1
+    k = 0
     while (k < max_iter):
         Hx = H(x)
         alpha = np.dot(gx, gx) / np.dot(np.dot(d, Hx), d)
@@ -24,11 +24,13 @@ def gradient_descent(f, g, H, x, eps, max_iter=15000):
         gx = gx_new
         k += 1
 
+    return x, fx, k
+
 
 def fletcher_reeves(f, g, get_f, get_f_, x, eps, max_iter=15000):
     gx = g(x)
     d = -gx
-    k = 1
+    k = 0
     while (k < max_iter):
         f = get_f(x, d)
         f_ = get_f_(x, d)

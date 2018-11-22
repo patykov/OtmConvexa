@@ -42,7 +42,7 @@ def plot3d_f(f, num_exe, minv, maxv):
 
 def steepest_descent(get_f, get_f_, g, line_search, x0, min_x, max_x, eps, max_iter=15000):
     x = x0
-    k = 1
+    k = 0
     while (k < max_iter):
         d = -0.01 * g(x)
         f = get_f(x, d)
@@ -62,7 +62,7 @@ def steepest_descent(get_f, get_f_, g, line_search, x0, min_x, max_x, eps, max_i
 def steepest_descent_no_line_search(f, g, x, eps, max_iter=15000):
     alpha = 1.0
     fx = f(x)
-    k = 1
+    k = 0
     while (k < max_iter):
         gx = g(x)
         d = -1 * gx
