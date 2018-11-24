@@ -74,7 +74,7 @@ def get_defined_functions(exe_num):
 
 def get_points(exe_num):
     if exe_num == 6.1:
-        return [1] * 16
+        return [[1] * 16, [-10] * 8 + [2] * 8, np.random.rand(16) * 20 - 10]
 
     if exe_num in [6.2, 7.7]:
         return [[-2.0, 2.0], [2.0, -2.0], [-2.0, -2.0]]
@@ -94,17 +94,18 @@ if __name__ == '__main__':
     eps = 10**(-6)
     points = get_points(args.exe_num)
 
-    # functions.plot3d_f(f, args.exe_num, args.min, args.max)
-
     if args.exe_num == 6.1:  # fazer para mais pontos
-        f, g, H = get_defined_functions(args.exe_num)
-        t = time.time()
-        x, fx, k = functions.gradient_descent(f, g, H, points, eps)
-        delta_t = (time.time() - t) * 1000
-        print('x: {}, fx: {:.5f}, num_iter: {}, time: {:.5f} ms\n'.format(x, fx, k, delta_t))
+        for p in points:
+            print('Ponto Inicial: {}'.format(p))
+            f, g, H = get_defined_functions(args.exe_num)
+            t = time.time()
+            x, fx, k = functions.conjugate_gradient(f, g, H, p, eps)
+            delta_t = (time.time() - t) * 1000
+            print('x: {}, fx: {:.5f}, num_iter: {}, time: {:.5f} ms\n'.format(x, fx, k, delta_t))
 
     elif args.exe_num == 6.2:
         f, g, get_f, get_f_ = get_defined_functions(args.exe_num)
+        # f2.plot3d_f(f, args.exe_num, -5, 5)
         for p in points:
             print('Ponto Inicial: {}'.format(p))
             t = time.time()
@@ -114,11 +115,12 @@ if __name__ == '__main__':
 
     elif args.exe_num == 6.3:
         f, g, H = get_defined_functions(args.exe_num)
+        # f2.plot3d_f(f, args.exe_num, -25, -15)
         for num_max_iter in [1, 2, 15000]:
             print('\n\nMax iterations: {}'.format(num_max_iter))
-            print('Exercise 6.3 - Gradient Descent')
+            print('Exercise 6.3 - Conjugate Gradient')
             t = time.time()
-            x, fx, k = functions.gradient_descent(
+            x, fx, k = functions.conjugate_gradient(
                 f, g, H, points, eps=3 * 10**(-7), max_iter=num_max_iter)
             delta_t = (time.time() - t) * 1000
             print('x: {}, fx: {:.5f}, num_iter: {}, time: {:.5f} ms\n'.format(x, fx, k, delta_t))
@@ -150,5 +152,11 @@ if __name__ == '__main__':
         print('Exercise 7.8 - DFP')
         t = time.time()
         x, fx, k = functions.dfp(f, g, points, eps1=3 * 10**(-7))
+        delta_t = (time.time() - t) * 1000
+        print('x: {}, fx: {:.5f}, num_iter: {}, time: {:.5f} ms\n'.format(x, fx, k, delta_t))
+
+        print('Exercise 7.8 - Steepest Descent without line search')
+        t = time.time()
+        x, fx, k = f2.steepest_descent_no_line_search(f, g, points, eps=3 * 10**(-7))
         delta_t = (time.time() - t) * 1000
         print('x: {}, fx: {:.5f}, num_iter: {}, time: {:.5f} ms\n'.format(x, fx, k, delta_t))

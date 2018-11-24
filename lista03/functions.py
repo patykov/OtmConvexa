@@ -5,7 +5,7 @@ sys.path.append('../')  # Fix it later, import from other dir not working
 from lista01 import functions as f1
 
 
-def gradient_descent(f, g, H, x, eps, max_iter=15000):
+def conjugate_gradient(f, g, H, x, eps, max_iter=15000):
     gx = g(x)
     d = -gx
     k = 0
