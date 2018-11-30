@@ -94,7 +94,7 @@ if __name__ == '__main__':
     eps = 10**(-6)
     points = get_points(args.exe_num)
 
-    if args.exe_num == 6.1:  # fazer para mais pontos
+    if args.exe_num == 6.1:
         for p in points:
             print('Ponto Inicial: {}'.format(p))
             f, g, H = get_defined_functions(args.exe_num)
