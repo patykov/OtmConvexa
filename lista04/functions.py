@@ -6,13 +6,43 @@ from lista03 import functions as f3
 from lista02 import functions as f2
 
 
-def iterative_conjugate_gradient(f, g, H, p, eps):
-    # initial point
-    x, fx, k = f3.conjugate_gradient(f, g, H, [p, 0.1], eps)
-    t = np.arange(0.2, 10000, 0.1)
-    all_k = k
-    for ti in t:
-        x, fx, k = f3.conjugate_gradient(f, g, H, [x, ti], eps)
+def iterative_steepest_descent(f, g, orig, z, eps):
+    m = 4
+    t = 1
+    mu = 1.2
+    z, _, k = f2.steepest_descent_no_line_search(f, g, z, eps, iter=t)
+    x, fx = orig(z)
+    all_k = 0
+    count = 0
+    while t < 10**8:
+        z, _, k = f2.steepest_descent_no_line_search(f, g, z, eps, iter=t)
         all_k += k
+        count += 1
+        x, fx = orig(z)
+        if abs(m / t) < eps:
+            return x, fx, all_k, count
 
-    return x, fx, all_k
+        t *= mu
+
+    return x, fx, all_k, count
+
+
+def iterative_conjugate_gradient(f, g, H, orig, z, eps):
+    m = 4
+    t = 1
+    mu = 1.2
+    z, _, k = f3.conjugate_gradient(f, g, H, z, eps, iter=t)
+    x, fx = orig(z)
+    all_k = 0
+    count = 0
+    while t < 10**8:
+        z, _, k = f3.conjugate_gradient(f, g, H, z, eps, iter=t)
+        all_k += k
+        count += 1
+        x, fx = orig(z)
+        if abs(m / t) < eps:
+            return x, fx, all_k, count
+
+        t *= mu
+
+    return x, fx, all_k, count
