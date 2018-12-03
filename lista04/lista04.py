@@ -1,8 +1,9 @@
 import argparse
 import time
-import math
+
 import numpy as np
 from scipy.linalg import null_space
+
 import functions
 
 
@@ -26,7 +27,7 @@ def get_defined_functions(exe_num):
 
         def set_f_t(t):
             def f(z):
-                f0 = np.dot((t * c), (np.dot(F, z) + x0))
+                f0 = t * np.dot(c, (np.dot(F, z) + x0))
                 I_ = [restricted_log(np.dot(F[i, :], z) + x0[i]) for i in range(4)]
                 # print([np.dot(F[i, :], z) + x0[i] for i in range(4)])
                 # print(I_)
@@ -34,17 +35,17 @@ def get_defined_functions(exe_num):
 
             return f
 
-        def get_f(x, d):
-            def f(alpha):
-                x = x0 + alpha * d
-                z = x[0]
-                t = x[1]
-                f0 = np.dot((t * c), (np.dot(F, z) + x0))
-                I_ = [restricted_log(np.dot(F[i, :], z) + x0[i]) for i in range(4)]
+        def set_get_f_t(t):
+            def get_f(z0, d):
+                def f(alpha):
+                    z = z0 + alpha * d
+                    f0 = np.dot((t * c), (np.dot(F, z) + x0))
+                    I_ = [restricted_log(np.dot(F[i, :], z) + x0[i]) for i in range(4)]
+                    return f0 - sum(I_)
 
-                return f0 - sum(I_)
+                return f
 
-            return f
+            return get_f
 
         def set_g_t(t):
             def g(z):
@@ -62,22 +63,18 @@ def get_defined_functions(exe_num):
 
             return g
 
-        def get_g(x, d):
-            def g(x):
-                z = x[0]
-                t = x[1]
-                logs_divs = [(x0[i] + F[i, 0] * z[0] + F[i, 1] * z[1]) for i in range(4)]
-                logs_dev = np.array([
-                    sum([F[i, 0] / logs_divs[i] for i in range(4)]),
-                    sum([F[i, 1] / logs_divs[i] for i in range(4)])
-                ])
-                f0_dev = np.array([
-                    sum([F[i, 0] * t * np.conj(c[i]) for i in range(4)]),
-                    sum([F[i, 1] * t * np.conj(c[i]) for i in range(4)])
-                ])
-                return f0_dev - logs_dev
+        def set_get_g_t(t):
+            def get_g(z0, d):
+                def g(alpha):
+                    z = z0 + alpha * d
+                    logs_dev = sum([
+                        np.dot(F[i, :], z) / (np.dot(F[i, :], z) + x0[i]) for i in range(4)])
+                    f0_dev = t * np.dot(c, np.dot(F, d))
+                    return f0_dev - logs_dev
 
-            return g
+                return g
+
+            return get_g
 
         def H(z):
             logs_divs = [(x0[i] + F[i, 0] * z[0] + F[i, 1] * z[1]) for i in range(4)]
@@ -96,7 +93,7 @@ def get_defined_functions(exe_num):
 
             return min_x, min_fx
 
-        return x0, set_f_t, set_g_t, H, get_f, get_g, original
+        return x0, set_f_t, set_g_t, H, set_get_f_t, set_get_g_t, original
 
 
 def get_points(exe_num):
@@ -113,7 +110,8 @@ if __name__ == '__main__':
     points = get_points(args.exe_num)
 
     if args.exe_num == 11.16:
-        x0, set_f_t, set_g_t, H, get_f, get_g, original = get_defined_functions(args.exe_num)
+        x0, set_f_t, set_g_t, H, set_get_f_t, set_get_g_t, original = get_defined_functions(
+            args.exe_num)
         print('Initial point: {}\n'.format(x0))
 
         print('Steepest Descent')
@@ -138,9 +136,10 @@ if __name__ == '__main__':
         print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
             x, fx, k, it, delta_t))
 
-        # print('Newton')
-        # t = time.time()
-        # x, fx, k, it = functions.iterative_newton(g, H, original, points, eps)
-        # delta_t = (time.time() - t) * 1000
-        # print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
-        #     x, fx, k, it, delta_t))
+        print('Newton')
+        t = time.time()
+        x, fx, k, it = functions.iterative_newton(
+            set_g_t, H, set_get_f_t, set_get_g_t, original, points, eps)
+        delta_t = (time.time() - t) * 1000
+        print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
+            x, fx, k, it, delta_t))

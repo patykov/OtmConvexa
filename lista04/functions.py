@@ -1,10 +1,9 @@
-import numpy as np
-
 import sys
+
 sys.path.append('../')  # Fix it later, import from other dir not working
-from lista03 import functions as f3
-from lista02 import functions as f2
 from lista01 import functions as f1
+from lista02 import functions as f2
+from lista03 import functions as f3
 
 
 def iterative_steepest_descent(set_f_t, set_g_t, orig, z, eps):
@@ -79,7 +78,7 @@ def iterative_quasi_newton(set_f_t, set_g_t, orig, z, eps):
     return x, fx, all_k, count
 
 
-def iterative_newton(set_g_t, H, get_f, get_g, orig, z, eps):
+def iterative_newton(set_g_t, H, set_get_f_t, set_get_g_t, orig, z, eps):
     m = 4
     t = 1
     mu = 1.2
@@ -88,6 +87,8 @@ def iterative_newton(set_g_t, H, get_f, get_g, orig, z, eps):
     count = 0
     while t < 10**8:
         g = set_g_t(t)
+        get_f = set_get_f_t(t)
+        get_g = set_get_g_t(t)
         z, _, k = f2.modified_newton(g, H, get_f, get_g, f1.backtraking_line_search, z, 0, 1, eps)
         all_k += k
         count += 1
