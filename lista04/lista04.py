@@ -278,6 +278,29 @@ def get_defined_functions(exe_num):
             return get_g
 
         def H(z):
+
+aaa = (H11*conj(F11))/2 + (H21*conj(F21))/2 + (H31*conj(F31))/2
+ddd = (H11*conj(F12))/2 + (H21*conj(F22))/2 + (H31*conj(F32))/2
+
+bbb = (H12*conj(F11))/2 + (H22*conj(F21))/2 + (H32*conj(F31))/2
+eee = (H12*conj(F12))/2 + (H22*conj(F22))/2 + (H32*conj(F32))/2
+
+ccc = (H13*conj(F11))/2 + (H23*conj(F21))/2 + (H33*conj(F31))/2
+fff = (H13*conj(F12))/2 + (H23*conj(F22))/2 + (H33*conj(F32))/2
+
+xxx = x01 + F11*z1 + F12*z2
+yyy = x02 + F21*z1 + F22*z2
+zzz = x03 + F31*z1 + F32*z2
+
+dz1z1 = (2*F11*(aaa) + 2*F21*(bbb) + 2*F31*(ccc)) + F11^2/(xxx)^2 + F21^2/(yyy)^2 + F31^2/(zzz)^2
+dz1z2 = (F12*(aaa) + F11*(ddd) + F22*(bbb) + F21*(eee) + F32*(ccc) + F31*(fff)) + (F11*F12)/(xxx)^2 + (F21*F22)/(yyy)^2 + (F31*F32)/(zzz)^2
+dz2z2 = (2*F12*(ddd) + 2*F22*(eee) + 2*F32*(fff)) + F12^2/(xxx)^2 + F22^2/(yyy)^2 + F32^2/(zzz)^2
+
+            F_conj = np.conj(F)
+            der1 = [
+                sum([(C[i, j]*(F_conj[1, 0]))/2.0  for i in range(3)]) 
+                for j in range(3)]
+
             logs_divs = [(x0[i] + F[i, 0] * z[0] + F[i, 1] * z[1]) for i in range(4)]
             logs_dev = np.array([[F[i, 0] / logs_divs[i] for i in range(4)],
                                  [F[i, 1] / logs_divs[i] for i in range(4)]])
@@ -286,7 +309,7 @@ def get_defined_functions(exe_num):
             dz2z2 = sum(aux[1])
             dz1z2 = sum([(F[i, 0] * F[i, 1]) / logs_divs[i]**2 for i in range(4)])
 
-            return np.array([[dz1z1, dz1z2], [dz1z2, dz2z2]])
+            return t*np.array([[dz1z1, dz1z2], [dz1z2, dz2z2]])
 
         def original(z):
             min_x = np.dot(F, z) + x0
