@@ -17,7 +17,7 @@ def restricted_log(x):
 def get_defined_functions(exe_num):
     if exe_num == 1:
         A = np.array([[1, 2, 1, 2], [1, 1, 2, 4]])
-        b = np.array((3, 5))
+        b = np.array([3, 5])
         c = np.array([1, 1.5, 1, 1])
 
         F = null_space(A)
@@ -95,7 +95,7 @@ def get_defined_functions(exe_num):
 
         return x0, set_f_t, set_g_t, H, set_get_f_t, set_get_g_t, original
 
-    if exe_num == 2:
+    elif exe_num == 2:
         def c1(x):
             A = [[0.25, 0], [0, 1.0]]
             b = [0.5, 0]
@@ -195,12 +195,113 @@ def get_defined_functions(exe_num):
 
         return set_f_t, set_g_t, H, set_get_f_t, set_get_g_t, original
 
+    elif exe_num == 3:
+        A = np.array([[1, 1, 1]])
+        b = np.array([3])
+        C = np.array([[4, 0, 0], [0, 1, -1], [0, -1, 1]])
+        d = np.array([-8, -6, -6])
+
+        F = null_space(A)
+
+        # Getting initial x
+        x0, _, _, _ = np.linalg.lstsq(A, b, rcond=None)
+
+        def set_f_t(t):
+            def f(z):
+                f0 = np.dot(np.dot(
+                    (np.dot(F, z) + x0), C), np.dot(F, z) + x0) + np.dot(np.dot(F, z) + x0, d)
+                I_ = [restricted_log(np.dot(F[i, :], z) + x0[i]) for i in range(3)]
+
+                return t*0.5*f0 - sum(I_)
+
+            return f
+
+        def set_get_f_t(t):
+            def get_f(z0, d):
+                def f(alpha):
+                    z = z0 + alpha * d
+                    f0 = np.dot(0.5*np.dot(
+                        (np.dot(F, z) + x0), C), np.dot(F, z) + x0) + np.dot(np.dot(F, z) + x0, d)
+                    I_ = [restricted_log(np.dot(F[i, :], z) + x0[i]) for i in range(3)]
+
+                    return f0 - sum(I_)
+
+                return f
+
+            return get_f
+
+        def set_g_t(t):
+            def g(z):
+                z_conj = np.conj(z)
+                F_conj = np.conj(F)
+                x0_conj = np.conj(x0)
+
+                df01 = [
+                    sum([F[i, j]*(
+                        C[i, 0]*(x0_conj[i] + F_conj[i, 0]*z_conj[0] + F_conj[i, 1]*z_conj[1]))/2.0
+                        for i in range(3)]) for j in range(2)]
+                df02 = [sum([d[i]*F_conj[i, j] for i in range(3)])
+                        for j in range(2)]
+                df03 = [x0[i] + F[i, 0]*z[i] + F[i, 1]*z[1] for i in range(3)]
+                df04 = [sum([
+                    df03[i]*(C[0, i]*F_conj[0, j] + C[1, i]*F_conj[1, j] + C[2, i]*F_conj[2, j]
+                    )/2.0 - F[i, j]/df03[i] for i in range(3)])
+                        for j in range(2)]
+
+                return np.array([np.array(df01) + np.array(df02) + np.array(df03) + np.array(df04)])
+
+            return g
+
+        def set_get_g_t(t):
+            def get_g(z0, d):
+                def g(alpha):
+                    z = z0 + alpha * d
+                    z_conj = np.conj(z)
+                    F_conj = np.conj(F)
+                    x0_conj = np.conj(x0)
+
+                    df01 = [
+                        sum([F[i, j]*(
+                            C[i, 0]*(x0_conj[i] + F_conj[i, 0]*z_conj[0] + F_conj[i, 1]*z_conj[1]))/2.0
+                            for i in range(3)]) for j in range(2)]
+                    df02 = [sum([d[i]*F_conj[i, j] for i in range(3)])
+                            for j in range(2)]
+                    df03 = [x0[i] + F[i, 0]*z[i] + F[i, 1]*z[1] for i in range(3)]
+                    df04 = [sum([
+                        df03[i]*(C[0, i]*F_conj[0, j] + C[1, i]*F_conj[1, j] + C[2, i]*F_conj[2, j]
+                        )/2.0 - F[i, j]/df03[i] for i in range(3)])
+                            for j in range(2)]
+
+                    return np.array([np.array(df01) + np.array(df02) + np.array(df03) + np.array(df04)])
+                return g
+
+            return get_g
+
+        def H(z):
+            logs_divs = [(x0[i] + F[i, 0] * z[0] + F[i, 1] * z[1]) for i in range(4)]
+            logs_dev = np.array([[F[i, 0] / logs_divs[i] for i in range(4)],
+                                 [F[i, 1] / logs_divs[i] for i in range(4)]])
+            aux = logs_dev**2
+            dz1z1 = sum(aux[0])
+            dz2z2 = sum(aux[1])
+            dz1z2 = sum([(F[i, 0] * F[i, 1]) / logs_divs[i]**2 for i in range(4)])
+
+            return np.array([[dz1z1, dz1z2], [dz1z2, dz2z2]])
+
+        def original(z):
+            min_x = np.dot(F, z) + x0
+            min_fx = 0.5*np.dot(np.dot(min_x, C), min_x) + np.dot(min_x, d)
+
+            return min_x, min_fx
+
+        return x0, set_f_t, set_g_t, H, set_get_f_t, set_get_g_t, original
+
 
 def get_points(exe_num):
-    if exe_num == 1:
+    if exe_num in [1, 3]:
         return [0, 0]
 
-    if exe_num == 2:
+    elif exe_num == 2:
         # return [2.0447, 0.8527, 2.5449, 2.4857]
         return [0, 0, 2, 4]
 
@@ -248,9 +349,56 @@ if __name__ == '__main__':
         print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
             x, fx, k, it, delta_t))
 
-    if args.exe_num == 2:
+    elif args.exe_num == 2:
         set_f_t, set_g_t, H, set_get_f_t, set_get_g_t, original = get_defined_functions(
             args.exe_num)
+
+        print('Initial point: {}\n'.format(points))
+
+        print('Steepest Descent')
+        t = time.time()
+        x, fx, k, it = functions.iterative_steepest_descent(set_f_t, set_g_t, original, points, eps)
+        delta_t = (time.time() - t) * 1000
+        print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
+            x, fx, k, it, delta_t))
+
+        print('Conjugate Gradiente')
+        t = time.time()
+        x, fx, k, it = functions.iterative_conjugate_gradient(set_f_t, set_g_t, H, original, points,
+                                                              eps)
+        delta_t = (time.time() - t) * 1000
+        print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
+            x, fx, k, it, delta_t))
+
+        print('Quasi-Newton')
+        t = time.time()
+        x, fx, k, it = functions.iterative_quasi_newton(set_f_t, set_g_t, original, points, eps)
+        delta_t = (time.time() - t) * 1000
+        print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
+            x, fx, k, it, delta_t))
+
+        print('Newton')
+        t = time.time()
+        x, fx, k, it = functions.iterative_newton(
+            set_g_t, H, set_get_f_t, set_get_g_t, original, points, eps)
+        delta_t = (time.time() - t) * 1000
+        print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
+            x, fx, k, it, delta_t))
+
+    elif args.exe_num == 3:
+        x0, set_f_t, set_g_t, H, set_get_f_t, set_get_g_t, original = get_defined_functions(
+            args.exe_num)
+
+        f = set_f_t(1)
+        print(f(points))
+
+        x, fx = original(points)
+        print(fx)
+
+        g = set_g_t(1)
+        print(g(points))
+        raise Exception
+
         print('Initial point: {}\n'.format(points))
 
         print('Steepest Descent')
