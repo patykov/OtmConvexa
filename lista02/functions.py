@@ -60,23 +60,21 @@ def steepest_descent(get_f, get_f_, g, line_search, x0, min_x, max_x, eps, max_i
     return x, fx_star, k
 
 
-def steepest_descent_no_line_search(f, g, x, eps, max_iter=15000, iter=None):
+def steepest_descent_no_line_search(f, g, x, eps, max_iter=15000):
     alpha = 1.0
-    fx = f(x if iter is None else [x, iter])
-    k = 0
+    fx = f(x)
+    k = 1
     while (k < max_iter):
-        gx = g(x if iter is None else [x, iter])
+        gx = g(x)
         d = -1 * gx
 
         alpha_hat = alpha
-        x_ = x - alpha_hat * gx
-        f_hat = f(x_ if iter is None else [x_, iter])
+        f_hat = f(x - alpha_hat * gx)
 
         alpha = (np.dot(gx, gx) * alpha**2) / (2 * (f_hat - fx + alpha * np.dot(gx, gx)))
 
         x += alpha * d
-        fx = f(x if iter is None else [x, iter])
-
+        fx = f(x)
         if np.all(abs(alpha * d) < eps):
             return x, fx, k
         k += 1

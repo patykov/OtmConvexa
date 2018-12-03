@@ -5,20 +5,20 @@ sys.path.append('../')  # Fix it later, import from other dir not working
 from lista01 import functions as f1
 
 
-def conjugate_gradient(f, g, H, x, eps, max_iter=15000, iter=None):
-    gx = g(x if iter is None else [x, iter])
+def conjugate_gradient(f, g, H, x, eps, max_iter=15000):
+    gx = g(x)
     d = -gx
     k = 0
     while (k < max_iter):
-        Hx = H(x if iter is None else [x, iter])
+        Hx = H(x)
         alpha = np.dot(gx, gx) / np.dot(np.dot(d, Hx), d)
         x += alpha * d
-        fx = f(x if iter is None else [x, iter])
+        fx = f(x)
 
         if np.all(abs(alpha * d) < eps):
             return x, fx, k
 
-        gx_new = g(x if iter is None else [x, iter])
+        gx_new = g(x)
         beta = np.dot(gx_new, gx_new) / np.dot(gx, gx)
         d = -gx_new + beta * d
         gx = gx_new
