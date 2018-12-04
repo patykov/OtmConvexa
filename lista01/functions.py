@@ -318,12 +318,12 @@ def backtraking_line_search(f_vec, x_vec, uncertainty_range, max_iter=100):
     t = 1
     for k in range(1, max_iter):
         delta_x = -np.sign(f_(x))
-        while f(x + t * delta_x) > (f(x) + alfa * t * np.transpose(f_(x)) * delta_x):
+        while np.all(f(x + t * delta_x) > (f(x) + alfa * t * np.transpose(f_(x)) * delta_x)):
             t *= beta
 
         x_min = x + t * delta_x
 
-        if abs(x - x_min) < uncertainty_range:
+        if np.all(abs(x - x_min) < uncertainty_range):
             return x_min, f(x_min), k
         else:
             x = x_min

@@ -213,19 +213,19 @@ def get_defined_functions(exe_num):
         def set_f_t(t):
             def f(z):
                 f0 = np.dot(np.dot(
-                    (np.dot(F, np.transpose(z)) + x0), C), np.dot(F, z) + x0) + np.dot(np.dot(F, z) + x0, d)
+                    0.5*(np.dot(F, z) + x0), C), np.dot(F, z) + x0) + np.dot(np.dot(F, z) + x0, d)
                 I_ = [restricted_log(np.dot(F[i, :], z) + x0[i]) for i in range(3)]
 
-                return t*0.5*f0 - sum(I_)
+                return t*f0 - sum(I_)
 
             return f
 
         def set_get_f_t(t):
-            def get_f(z0, d):
+            def get_f(z0, d_):
                 def f(alpha):
-                    z = z0 + alpha * d
-                    f0 = np.dot(0.5*np.dot(
-                        (np.dot(F, z) + x0), C), np.dot(F, z) + x0) + np.dot(np.dot(F, z) + x0, d)
+                    z = z0 + alpha * d_
+                    f0 = np.dot(np.dot(0.5*(np.dot(F, z) + x0), C), np.dot(F, z) + x0) + np.dot(
+                        np.dot(F, z) + x0, d)
                     I_ = [restricted_log(np.dot(F[i, :], z) + x0[i]) for i in range(3)]
 
                     return f0 - sum(I_)
@@ -257,9 +257,9 @@ def get_defined_functions(exe_num):
             return g
 
         def set_get_g_t(t):
-            def get_g(z0, d):
+            def get_g(z0, d_):
                 def g(alpha):
-                    z = z0 + alpha * d
+                    z = z0 + alpha * d_
                     z_conj = np.conj(z)
                     F_conj = np.conj(F)
                     x0_conj = np.conj(x0)
@@ -268,16 +268,17 @@ def get_defined_functions(exe_num):
                         sum([F[i, j]*(
                             C[i, 0]*(x0_conj[i] + F_conj[i, 0]*z_conj[0] + F_conj[i, 1]*z_conj[1]))/2.0
                             for i in range(3)]) for j in range(2)]
+
                     df02 = [sum([d[i]*F_conj[i, j] for i in range(3)])
                             for j in range(2)]
-                    df03 = [x0[i] + F[i, 0]*z[i] + F[i, 1]*z[1] for i in range(3)]
+                    df03 = [x0[i] + F[i, 0]*z[0] + F[i, 1]*z[1] for i in range(3)]
                     df04 = [sum([
                         df03[i]*(C[0, i]*F_conj[0, j] + C[1, i]*F_conj[1, j] + C[2, i]*F_conj[2, j]
                         )/2.0 - F[i, j]/df03[i] for i in range(3)])
                             for j in range(2)]
 
                     return np.array(
-                        np.array(df01) + np.array(df02) + np.array(df03) + np.array(df04))
+                        np.array(df01) + np.array(df02) + np.array(df04))
                 return g
 
             return get_g
