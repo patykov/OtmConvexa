@@ -117,9 +117,9 @@ def modified_newton(g, H, get_f, get_f_, line_search, x0, min_x, max_x, eps, max
         min_x = alpha_star - alpha_star / 2
         max_x = alpha_star + alpha_star / 2
 
+        k += 1
         if np.all(abs(alpha_star * d) < eps):
             return x, fx_star, k
-        k += 1
 
     print('Reached max iterations!')
     return x, fx_star, k

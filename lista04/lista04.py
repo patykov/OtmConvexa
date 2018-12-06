@@ -266,7 +266,8 @@ def get_defined_functions(exe_num):
 
                     df01 = [
                         sum([F[i, j]*(
-                            C[i, 0]*(x0_conj[i] + F_conj[i, 0]*z_conj[0] + F_conj[i, 1]*z_conj[1]))/2.0
+                            C[i, 0]*(
+                                x0_conj[i] + F_conj[i, 0]*z_conj[0] + F_conj[i, 1]*z_conj[1]))/2.0
                             for i in range(3)]) for j in range(2)]
 
                     df02 = [sum([d[i]*F_conj[i, j] for i in range(3)])
@@ -287,17 +288,21 @@ def get_defined_functions(exe_num):
             def H(z):
                 F_conj = np.conj(F)
                 der1 = np.array([
-                    [sum([(C[i, j]*(F_conj[i, 0]))/2.0  for i in range(3)]), 
-                    sum([(C[i, j]*(F_conj[i, 1]))/2.0  for i in range(3)])] for j in range(3)])
+                    [sum([(C[i, j]*(F_conj[i, 0]))/2.0 for i in range(3)]),
+                     sum([(C[i, j]*(F_conj[i, 1]))/2.0 for i in range(3)])] for j in range(3)])
                 der2 = [(x0[i] + F[i, 0]*z[0] + F[i, 1]*z[1])**2 for i in range(3)]
-                
-                dz1z1 = 2*sum([F[i, 0]*der1[i, 0] for i in range(3)]) + sum([F[i, 0]**2/der2[i] for i in range(3)])
+
+                dz1z1 = 2*sum(
+                    [F[i, 0]*der1[i, 0] for i in range(3)]) + sum(
+                        [F[i, 0]**2/der2[i] for i in range(3)])
                 dz1z2 = sum(F[i, 1]*der1[i, 0] + F[i, 0]*der1[i, 1] for i in range(3)) + sum([
                             F[i, 0]*F[i, 1]/der2[i] for i in range(3)])
-                dz2z2 = 2*sum([F[i, 1]*der1[i, 1] for i in range(3)]) + sum([F[i, 1]**2/der2[i] for i in range(3)])
+                dz2z2 = 2*sum(
+                    [F[i, 1]*der1[i, 1] for i in range(3)]) + sum(
+                        [F[i, 1]**2/der2[i] for i in range(3)])
 
                 return t*np.array([[dz1z1, dz1z2], [dz1z2, dz2z2]])
-            
+
             return H
 
         def original(z):
@@ -308,6 +313,199 @@ def get_defined_functions(exe_num):
 
         return x0, set_f_t, set_g_t, set_H_t, set_get_f_t, set_get_g_t, original
 
+    elif exe_num == 4:
+        F0 = np.array([
+            [0.5, 0.55, 0.33, 2.38],
+            [0.55, 0.18, -1.18, -0.4],
+            [0.33, -1.18, -0.94, 1.46],
+            [2.38, -0.4, 1.46, 0.17]])
+
+        F1 = np.array([
+            [5.19, 1.54, 1.56, -2.8],
+            [1.54, 2.2, 0.39, -2.5],
+            [1.56, 0.39, 4.43, 1.77],
+            [-2.8, -2.5, 1.77, 4.06]])
+
+        F2 = np.array([
+            [-1.11, 0, -2.12, 0.38],
+            [0, 1.91, -0.25, -0.58],
+            [-2.12, -0.25, -1.49, 1.45],
+            [0.38, -0.58, 1.45, 0.63]])
+
+        F3 = np.array([
+            [2.69, -2.24, -0.21, -0.74],
+            [-2.24, 1.77, 1.16, -2.01],
+            [-0.21, 1.16, -1.82, -2.79],
+            [-0.74, -2.01, -2.79, -2.22]])
+
+        F4 = np.array([
+            [0.58, -2.19, 1.69, 1.28],
+            [-2.19, -0.05, -0.01, 0.91],
+            [1.69, -0.01, 2.56, 2.14],
+            [1.28, 0.91, 2.14, -0.75]])
+
+        c = np.array([1, 0, 2, -1])
+
+        F = [F1, F2, F3, F4]
+
+        x0 = np.zeros(4)
+        while np.linalg.eigvalsh(F0 + sum([x0[i]*F[i] for i in range(4)]))[0] <= 0:
+            x0 = np.random.randn(4)
+
+        def set_f_t(t):
+            def f(x):
+                f0 = t*np.dot(c, x)
+                I_ = restricted_log(np.linalg.eigvalsh(F0 + sum([x[i]*F[i] for i in range(4)]))[0])
+
+                return f0 - I_
+
+            return f
+
+        def set_get_f_t(t):
+            def get_f(x0, d):
+                def f(alpha):
+                    x = x0 + alpha * d
+                    f0 = t*np.dot(c, x)
+                    I_ = restricted_log(
+                        np.linalg.eigvalsh(F0 + sum([x[i]*F[i] for i in range(4)]))[0])
+
+                    return f0 - I_
+
+                return f
+
+            return get_f
+
+        def set_g_t(t):
+            def g(x):
+                F_sum = np.matrix(F0 + sum([x[i]*F[i] for i in range(4)]))
+                F_adf = np.linalg.inv(F_sum) * np.linalg.det(F_sum)
+                F_dev = [np.trace(np.dot(F_adf, F[i])) for i in range(4)]
+                log_dev = 1.0/np.linalg.det(F_sum)
+
+                return np.array([t*c[i] - log_dev*F_dev[i] for i in range(4)])
+
+            return g
+
+        def set_get_g_t(t):
+            def get_g(x0, d):
+                def g(alpha):
+                    x = x0 + alpha * d
+                    F_sum = F0 + sum([x[i]*F[i] for i in range(4)])
+                    F_adf = np.linalg.inv(F_sum) * np.linalg.det(F_sum)
+                    F_dev = [np.trace(F_adf*(d[i]*F[i])) for i in range(4)]
+                    log_dev = 1.0/np.linalg.det(F_sum)
+
+                    return t*np.dot(c, d) - sum([log_dev*F_dev[i] for i in range(4)])
+
+                return g
+
+            return get_g
+
+        def set_H_t(t):
+            def H(x):
+                F_sum = F0 + sum([x[i]*F[i] for i in range(4)])
+                F_adj = np.linalg.inv(F_sum) * np.linalg.det(F_sum)
+                F_det = np.linalg.det(F_sum)
+                F_dev = [np.trace(np.dot(F_adj, F[i])) for i in range(4)]
+                der1 = np.dot(F_dev, F_dev)/F_det
+
+                X_list = [F_adj.dot(Fi) for Fi in F]
+                der2 = np.array([[-np.trace(Xi)*np.trace(Xj) - np.sum(Xi.T * Xj)
+                                  for Xi in X_list] for Xj in X_list])
+                return (- der1 - der2)/F_det
+            return H
+
+        def original(x):
+            return x, np.dot(c, x)
+
+        return x0, set_f_t, set_g_t, set_H_t, set_get_f_t, set_get_g_t, original
+
+    elif exe_num == 5:
+
+        def set_f_t(t):
+            def f(x):
+                f0 = 100*(x[0]**2 - x[1])**2 + (x[0] - 1)**2 + 90*(x[2]**2 - x[3])**2 + (
+                    x[2] - 1)**2 + 10.1*((x[1] - 1)**2 + (x[3] - 1)**2) + 19.8*(x[1] - 1)*(x[3] - 1)
+                I_ = sum(
+                    [restricted_log(x[i] + 10) for i in range(4)]) + sum(
+                    [restricted_log(-x[i] + 10) for i in range(4)])
+
+                return t*f0 - I_
+
+            return f
+
+        def set_get_f_t(t):
+            def get_f(x0, d):
+                def f(alpha):
+                    x = x0 + alpha * d
+                    f0 = 100*(x[0]**2 - x[1])**2 + (x[0] - 1)**2 + 90*(x[2]**2 - x[3])**2 + (
+                        x[2] - 1)**2 + 10.1*((x[1] - 1)**2 + (x[3] - 1)**2) + 19.8*(
+                        x[1] - 1)*(x[3] - 1)
+                    I_ = sum(
+                        [restricted_log(x[i] + 10) for i in range(4)]) + sum(
+                        [restricted_log(-x[i] + 10) for i in range(4)])
+
+                    return t*f0 - I_
+
+                return f
+
+            return get_f
+
+        def set_g_t(t):
+            def g(x):
+                return np.array([
+                    -1.0/(x[0] - 10) - 1/(x[0] + 10) - t*(400*x[0]*(- x[0]**2 + x[1]) - 2*x[0] + 2),
+                    t*(- 200*x[0]**2 + (1101*x[1])/5 + (99*x[3])/5 - 40) - 1/(x[1] - 10) - 1/(
+                        x[1] + 10),
+                    -1.0/(x[2] - 10) - 1/(x[2] + 10) - t*(360*x[2]*(- x[2]**2 + x[3]) - 2*x[2] + 2),
+                    t*(- 180*x[2]**2 + (99*x[1])/5 + (1001*x[3])/5 - 40) - 1/(x[3] - 10) - 1/(
+                        x[3] + 10)
+                    ])
+
+            return g
+
+        def set_get_g_t(t):
+            def get_g(x0, d):
+                def g(alpha):
+                    x = x0 + alpha * d
+                    d_f0 = 200*(x[0]**2 - x[1])*(2*x[0]*d[0] - d[1]) + 2*(x[0] - 1)*d[0] + 180*(
+                        x[2]**2 - x[3])*(2*x[2]*d[2] - d[3]) + 2*(x[2] - 1)*d[2] + 10.1*(2*(
+                            x[1] - 1)*d[1] + 2*(x[3] - 1)*d[3]) + 19.8*(d[1]*(x[3] - 1) + (
+                                x[1] - 1)*d[3])
+                    d_logs = sum([d[i]*(1.0/(-x[i] - 10) - 1.0/(x[i] - 10)) for i in range(4)])
+
+                    return d_f0 + d_logs
+
+                return g
+
+            return get_g
+
+        def set_H_t(t):
+            def H(x):
+                dx1x1 = 1/(x[0] - 10)**2 + 1/(x[0] + 10)**2 + t*(1200*x[0]**2 - 400*x[1] + 2)
+                dx1x2 = -400*t*x[0]
+                dx1x3 = dx1x4 = 0
+                dx2x2 = (1101*t)/5 + 1/(x[1] - 10)**2 + 1/(x[1] + 10)**2
+                dx2x3 = 0
+                dx2x4 = (99*t)/5
+                dx3x3 = 1/(x[2] - 10)**2 + 1/(x[2] + 10)**2 + t*(1080*x[2]**2 - 360*x[3] + 2)
+                dx3x4 = -360*t*x[2]
+                dx4x4 = (1001*t)/5 + 1/(x[3] - 10)**2 + 1/(x[3] + 10)**2
+
+                return np.array([
+                    [dx1x1, dx1x2, dx1x3, dx1x4], [dx1x2, dx2x2, dx2x3, dx2x4],
+                    [dx1x3, dx2x3, dx3x3, dx3x4], [dx1x4, dx2x4, dx3x4, dx4x4]
+                ])
+
+            return H
+
+        def original(x):
+            min_f = 100*(x[0]**2 - x[1])**2 + (x[0] - 1)**2 + 90*(x[2]**2 - x[3])**2 + (
+                x[2] - 1)**2 + 10.1*((x[1] - 1)**2 + (x[3] - 1)**2) + 19.8*(x[1] - 1)*(x[3] - 1)
+            return x, min_f
+
+        return set_f_t, set_g_t, set_H_t, set_get_f_t, set_get_g_t, original
+
 
 def get_points(exe_num):
     if exe_num in [1, 3]:
@@ -315,6 +513,12 @@ def get_points(exe_num):
 
     elif exe_num == 2:
         return [1, 0.5, 3, 4]
+
+    elif exe_num == 4:
+        return None
+ 
+    elif exe_num == 5:
+        return np.array([2.0, 2.0, 2.0, 2.0])
 
 
 if __name__ == '__main__':
@@ -332,7 +536,8 @@ if __name__ == '__main__':
 
         print('Steepest Descent')
         t = time.time()
-        x, fx, k, it = functions.iterative_steepest_descent(set_f_t, set_g_t, original, points, eps)
+        x, fx, k, it = functions.iterative_steepest_descent(
+            set_f_t, set_g_t, original, points, eps, t=1, mu=10)
         delta_t = (time.time() - t) * 1000
         print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
             x, fx, k, it, delta_t))
@@ -340,14 +545,15 @@ if __name__ == '__main__':
         print('Conjugate Gradiente')
         t = time.time()
         x, fx, k, it = functions.iterative_conjugate_gradient(
-            set_f_t, set_g_t, set_H_t, original, points, eps)
+            set_f_t, set_g_t, set_H_t, original, points, eps, t=4, mu=1.2)
         delta_t = (time.time() - t) * 1000
         print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
             x, fx, k, it, delta_t))
 
         print('Quasi-Newton')
         t = time.time()
-        x, fx, k, it = functions.iterative_quasi_newton(set_f_t, set_g_t, original, points, eps)
+        x, fx, k, it = functions.iterative_quasi_newton(
+            set_f_t, set_g_t, original, points, eps, t=0.01, mu=2)
         delta_t = (time.time() - t) * 1000
         print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
             x, fx, k, it, delta_t))
@@ -355,7 +561,7 @@ if __name__ == '__main__':
         print('Newton')
         t = time.time()
         x, fx, k, it = functions.iterative_newton(
-            set_g_t, set_H_t, set_get_f_t, set_get_g_t, original, points, eps)
+            set_g_t, set_H_t, set_get_f_t, set_get_g_t, original, points, eps, t=0.01, mu=2)
         delta_t = (time.time() - t) * 1000
         print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
             x, fx, k, it, delta_t))
@@ -367,7 +573,8 @@ if __name__ == '__main__':
 
         print('Steepest Descent')
         t = time.time()
-        x, fx, k, it = functions.iterative_steepest_descent(set_f_t, set_g_t, original, points, eps)
+        x, fx, k, it = functions.iterative_steepest_descent(
+            set_f_t, set_g_t, original, points, eps, t=1, mu=10)
         delta_t = (time.time() - t) * 1000
         print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
             x, fx, k, it, delta_t))
@@ -375,14 +582,15 @@ if __name__ == '__main__':
         print('Conjugate Gradiente')
         t = time.time()
         x, fx, k, it = functions.iterative_conjugate_gradient(
-            set_f_t, set_g_t, set_H_t, original, points, eps)
+            set_f_t, set_g_t, set_H_t, original, points, eps, t=1, mu=1.2)
         delta_t = (time.time() - t) * 1000
         print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
             x, fx, k, it, delta_t))
 
         print('Quasi-Newton')
         t = time.time()
-        x, fx, k, it = functions.iterative_quasi_newton(set_f_t, set_g_t, original, points, eps)
+        x, fx, k, it = functions.iterative_quasi_newton(
+            set_f_t, set_g_t, original, points, eps, t=2.5, mu=20)
         delta_t = (time.time() - t) * 1000
         print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
             x, fx, k, it, delta_t))
@@ -390,7 +598,7 @@ if __name__ == '__main__':
         print('Newton')
         t = time.time()
         x, fx, k, it = functions.iterative_newton(
-            set_g_t, set_H_t, set_get_f_t, set_get_g_t, original, points, eps)
+            set_g_t, set_H_t, set_get_f_t, set_get_g_t, original, points, eps, t=2.5, mu=20)
         delta_t = (time.time() - t) * 1000
         print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
             x, fx, k, it, delta_t))
@@ -402,7 +610,8 @@ if __name__ == '__main__':
 
         print('Steepest Descent')
         t = time.time()
-        x, fx, k, it = functions.iterative_steepest_descent(set_f_t, set_g_t, original, points, eps)
+        x, fx, k, it = functions.iterative_steepest_descent(
+            set_f_t, set_g_t, original, points, eps, t=1, mu=10)
         delta_t = (time.time() - t) * 1000
         print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
             x, fx, k, it, delta_t))
@@ -410,14 +619,15 @@ if __name__ == '__main__':
         print('Conjugate Gradiente')
         t = time.time()
         x, fx, k, it = functions.iterative_conjugate_gradient(
-            set_f_t, set_g_t, set_H_t, original, points, eps)
+            set_f_t, set_g_t, set_H_t, original, points, eps, t=1, mu=10)
         delta_t = (time.time() - t) * 1000
         print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
             x, fx, k, it, delta_t))
 
         print('Quasi-Newton')
         t = time.time()
-        x, fx, k, it = functions.iterative_quasi_newton(set_f_t, set_g_t, original, points, eps)
+        x, fx, k, it = functions.iterative_quasi_newton(
+            set_f_t, set_g_t, original, points, eps, t=1, mu=10)
         delta_t = (time.time() - t) * 1000
         print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
             x, fx, k, it, delta_t))
@@ -425,7 +635,81 @@ if __name__ == '__main__':
         print('Newton')
         t = time.time()
         x, fx, k, it = functions.iterative_newton(
-            set_g_t, set_H_t, set_get_f_t, set_get_g_t, original, points, eps)
+            set_g_t, set_H_t, set_get_f_t, set_get_g_t, original, points, eps, t=1, mu=10)
+        delta_t = (time.time() - t) * 1000
+        print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
+            x, fx, k, it, delta_t))
+
+    elif args.exe_num == 4:
+        x0, set_f_t, set_g_t, set_H_t, set_get_f_t, set_get_g_t, original = get_defined_functions(
+            args.exe_num)
+        print('Initial point: {}\n'.format(x0))
+
+        print('Steepest Descent')
+        t = time.time()
+        x, fx, k, it = functions.iterative_steepest_descent(
+            set_f_t, set_g_t, original, x0, eps, t=1, mu=20)
+        delta_t = (time.time() - t) * 1000
+        print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
+            x, fx, k, it, delta_t))
+
+        print('Conjugate Gradiente')
+        t = time.time()
+        x, fx, k, it = functions.iterative_conjugate_gradient(
+            set_f_t, set_g_t, set_H_t, original, x0, eps, t=1, mu=10)
+        delta_t = (time.time() - t) * 1000
+        print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
+            x, fx, k, it, delta_t))
+
+        print('Quasi-Newton')
+        t = time.time()
+        x, fx, k, it = functions.iterative_quasi_newton(
+            set_f_t, set_g_t, original, x0, eps, t=1, mu=1.9)
+        delta_t = (time.time() - t) * 1000
+        print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
+            x, fx, k, it, delta_t))
+
+        print('Newton')
+        t = time.time()
+        x, fx, k, it = functions.iterative_newton(
+            set_g_t, set_H_t, set_get_f_t, set_get_g_t, original, x0, eps, t=1, mu=10)
+        delta_t = (time.time() - t) * 1000
+        print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
+            x, fx, k, it, delta_t))
+
+    elif args.exe_num == 5:
+        set_f_t, set_g_t, set_H_t, set_get_f_t, set_get_g_t, original = get_defined_functions(
+            args.exe_num)
+        print('Initial point: {}\n'.format(points))
+
+        print('Steepest Descent')
+        t = time.time()
+        x, fx, k, it = functions.iterative_steepest_descent(
+            set_f_t, set_g_t, original, points, eps, t=0.001, mu=10)
+        delta_t = (time.time() - t) * 1000
+        print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
+            x, fx, k, it, delta_t))
+
+        print('Conjugate Gradiente')
+        t = time.time()
+        x, fx, k, it = functions.iterative_conjugate_gradient(
+            set_f_t, set_g_t, set_H_t, original, points, eps, t=1, mu=10)
+        delta_t = (time.time() - t) * 1000
+        print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
+            x, fx, k, it, delta_t))
+
+        print('Quasi-Newton')
+        t = time.time()
+        x, fx, k, it = functions.iterative_quasi_newton(
+            set_f_t, set_g_t, original, points, eps, t=1, mu=10)
+        delta_t = (time.time() - t) * 1000
+        print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
+            x, fx, k, it, delta_t))
+
+        print('Newton')
+        t = time.time()
+        x, fx, k, it = functions.iterative_newton(
+            set_g_t, set_H_t, set_get_f_t, set_get_g_t, original, points, eps, t=1, mu=10)
         delta_t = (time.time() - t) * 1000
         print('x: {}, fx: {:.5f}, num_iter: {}, calls: {}, time: {:.5f} ms\n'.format(
             x, fx, k, it, delta_t))

@@ -6,10 +6,8 @@ from lista02 import functions as f2
 from lista03 import functions as f3
 
 
-def iterative_steepest_descent(set_f_t, set_g_t, orig, z, eps):
+def iterative_steepest_descent(set_f_t, set_g_t, orig, z, eps, t=0.001, mu=10):
     m = 4
-    t = 1
-    mu = 2
 
     all_k = 0
     count = 0
@@ -17,23 +15,22 @@ def iterative_steepest_descent(set_f_t, set_g_t, orig, z, eps):
         # Getting f and g for new t
         f = set_f_t(t)
         g = set_g_t(t)
-        z, _, k = f2.steepest_descent_no_line_search(f, g, z, eps)
+        z_opt, _, k = f2.steepest_descent_no_line_search(f, g, z, eps)
 
         all_k += k
         count += 1
         x, fx = orig(z)
-        if abs(m / t) < eps:
+        if (m / t) < eps:
             return x, fx, all_k, count
 
-        t *= mu
+        t = mu * t
+        z = z_opt
 
     return x, fx, all_k, count
 
 
-def iterative_conjugate_gradient(set_f_t, set_g_t, set_H_t, orig, z, eps):
+def iterative_conjugate_gradient(set_f_t, set_g_t, set_H_t, orig, z, eps, t=1, mu=1.2):
     m = 4
-    t = 1
-    mu = 1.2
 
     all_k = 0
     count = 0
@@ -47,7 +44,7 @@ def iterative_conjugate_gradient(set_f_t, set_g_t, set_H_t, orig, z, eps):
         all_k += k
         count += 1
         x, fx = orig(z)
-        if abs(m / t) < eps:
+        if (m / t) < eps:
             return x, fx, all_k, count
 
         t *= mu
@@ -55,10 +52,8 @@ def iterative_conjugate_gradient(set_f_t, set_g_t, set_H_t, orig, z, eps):
     return x, fx, all_k, count
 
 
-def iterative_quasi_newton(set_f_t, set_g_t, orig, z, eps):
+def iterative_quasi_newton(set_f_t, set_g_t, orig, z, eps, t=1, mu=1.2):
     m = 4
-    t = 1
-    mu = 1.2
 
     all_k = 0
     count = 0
@@ -71,7 +66,7 @@ def iterative_quasi_newton(set_f_t, set_g_t, orig, z, eps):
         all_k += k
         count += 1
         x, fx = orig(z)
-        if abs(m / t) < eps:
+        if (m / t) < eps:
             return x, fx, all_k, count
 
         t *= mu
@@ -79,10 +74,8 @@ def iterative_quasi_newton(set_f_t, set_g_t, orig, z, eps):
     return x, fx, all_k, count
 
 
-def iterative_newton(set_g_t, set_H_t, set_get_f_t, set_get_g_t, orig, z, eps):
+def iterative_newton(set_g_t, set_H_t, set_get_f_t, set_get_g_t, orig, z, eps, t=1, mu=1.2):
     m = 4
-    t = 1
-    mu = 1.2
 
     all_k = 0
     count = 0
@@ -96,7 +89,7 @@ def iterative_newton(set_g_t, set_H_t, set_get_f_t, set_get_g_t, orig, z, eps):
         count += 1
 
         x, fx = orig(z)
-        if abs(m / t) < eps:
+        if (m / t) < eps:
             return x, fx, all_k, count
 
         t *= mu
