@@ -51,28 +51,28 @@ def rpca(M, eps=0.001, r=1):
     m, n = M.shape
 
     s = linalg.svd(M, compute_uv=False)
-    B = 1 / np.sqrt(n)  # threshold parameter
-    thresh = B * s[0]
+    lamb = 1 / np.sqrt(n)  # threshold parameter
+    thresh = lamb * s[0]
 
     # Initial Low Rank Component
     L = np.zeros(M.shape)
     # Initial Sparse Component
     S = HT(M - L, thresh)
 
-    iterations = range(int(10 * np.log(n * B * frob_norm(M - S) / eps)))
+    iterations = range(int(10 * np.log(n * lamb * frob_norm(M - S) / eps)))
     print('Number of iterations: %d to achieve eps = %f' % (len(iterations), eps))
 
     for k in range(1, r+1):
         for t in iterations:
 
             U, s, Vt = linalg.svd(M - S, full_matrices=False)
-            thresh = B * (s[k] + s[k-1] * (1/2)**t)
+            thresh = lamb * (s[k] + s[k-1] * (1/2)**t)
 
             # Best rank k approximation of M - S
             L = np.dot(np.dot(U[:, :k], np.diag(s[:k])), Vt[:k])
             S = HT(M - L, thresh)
 
-        if (B * s[k]) < (eps / (2*n)):
+        if (lamb * s[k]) < (eps / (2*n)):
             break
 
     return L, S
