@@ -10,13 +10,14 @@ http://blog.shriphani.com/2013/12/18/
 
 from __future__ import division, print_function
 
-__all__ = ["pcp"]
-
-import time
-import fbpca
 import logging
+import time
+
+import fbpca
 import numpy as np
 from scipy.sparse.linalg import svds
+
+__all__ = ["pcp"]
 
 
 def pcp(M, delta=1e-6, mu=None, maxiter=500, verbose=False, missing_data=True,
@@ -75,7 +76,8 @@ def pcp(M, delta=1e-6, mu=None, maxiter=500, verbose=False, missing_data=True,
         Y += mu * step
 
         # Check for convergence.
-        err = np.sqrt(np.sum(step ** 2) / norm)
+        # print(np.sum(step ** 2), norm, np.sum(step ** 2) / norm)
+        err = np.sqrt(abs(np.sum(step ** 2) / norm))
         if verbose:
             print(("Iteration {0}: error={1:.3e}, rank={2:d}, nnz={3:d}, "
                    "time={4:.3e}")

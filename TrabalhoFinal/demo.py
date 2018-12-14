@@ -1,13 +1,16 @@
 from __future__ import division, print_function
-import os
-import sys
+
 import glob
+import os
+import time
+
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 
-from pcp2 import pcp
+from pcp import pcp
 from r_pca import R_pca
+from rpcaADMM import rpcaADMM
 
 
 def bitmap_to_mat(bitmap_seq):
@@ -33,26 +36,30 @@ def do_plot(ax, img, shape):
 
 if __name__ == "__main__":
 
-    if "--test" in sys.argv:
-        M = (10*np.ones((10, 10))) + (-5 * np.eye(10))
-        L, S, svd = pcp(M, verbose=True, svd_method="exact")
-        assert np.allclose(M, L + S), "Failed"
-        print("passed")
-        sys.exit(0)
+    frames_dir = "C:/Users/v-pakova/source/repos/OtmConvexa/TrabalhoFinal/capoeira"
 
-    files_list = glob.glob("dataset/walking1/*.jpg")[:60]
-    sorted_list = sorted(files_list, key=lambda x: int(x.split(os.sep)[-1].replace('.jpg', '')))
+    files_list = glob.glob("{}/*.jpg".format(frames_dir))
+    sorted_list = sorted(files_list, key=lambda x: int(os.path.basename(x).replace('.jpg', '')))[:30]
     M, shape = bitmap_to_mat(sorted_list)
     print(M.shape)
 
-    # L, S, (u, s, v) = pcp(M, maxiter=50, verbose=True, svd_method="exact")
+    t = time.time()
+    L, S, (u, s, v) = pcp(M, maxiter=50, verbose=True, svd_method="exact")
 
     # rpca = R_pca(M)
-    # L, S = rpca.fit(max_iter=10000, iter_print=100)
+    # L, S = rpca.fit(max_iter=100, iter_print=100)
     # rpca.plot_fit()
     # plt.show()
 
-    L, S = pcp(M)
+    # h = rpcaADMM(M)
+    # L = h['X3_admm']
+    # S = h['X2_admm']
+
+    delta_t = (time.time() - t) * 1000
+    print("Total time: {:.5f} ms".format(delta_t))
+
+    if not os.path.exists('results_pcp'):
+        os.mkdir('results_pcp')
 
     fig, axes = plt.subplots(1, 3, figsize=(10, 4))
     fig.subplots_adjust(left=0, right=1, hspace=0, wspace=0.01)
