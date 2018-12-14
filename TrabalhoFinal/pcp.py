@@ -58,9 +58,7 @@ def pcp(M, delta=1e-6, mu=None, maxiter=500, verbose=False, missing_data=True,
     Y = np.zeros(shape)
     while i < max(maxiter, 1):
         # SVD step.
-        strt = time.time()
         u, s, v = _svd(svd_method, M - S + Y / mu, rank+1, 1./mu, **svd_args)
-        svd_time = time.time() - strt
 
         s = shrink(s, 1./mu)
         rank = np.sum(s > 0.0)
@@ -76,12 +74,10 @@ def pcp(M, delta=1e-6, mu=None, maxiter=500, verbose=False, missing_data=True,
         Y += mu * step
 
         # Check for convergence.
-        # print(np.sum(step ** 2), norm, np.sum(step ** 2) / norm)
         err = np.sqrt(abs(np.sum(step ** 2) / norm))
         if verbose:
-            print(("Iteration {0}: error={1:.3e}, rank={2:d}, nnz={3:d}, "
-                   "time={4:.3e}")
-                  .format(i, err, np.sum(s > 0), np.sum(S > 0), svd_time))
+            print("Iteration {0}: error={1:.3e}, rank={2:d}, nnz={3:d}".format(
+                i, err, np.sum(s > 0), np.sum(S > 0)))
         if err < delta:
             break
         i += 1
@@ -92,10 +88,7 @@ def pcp(M, delta=1e-6, mu=None, maxiter=500, verbose=False, missing_data=True,
 
 
 def shrink(M, tau):
-    sgn = np.sign(M)
-    S = np.abs(M) - tau
-    S[S < 0.0] = 0.0
-    return sgn * S
+    return np.sign(M) * np.maximum((np.abs(M) - tau), np.zeros(M.shape))
 
 
 def _svd(method, X, rank, tol, **args):

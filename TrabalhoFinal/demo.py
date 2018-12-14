@@ -14,6 +14,7 @@ from pcp import pcp
 from r_pca import R_pca
 from rpca import rpca
 from rpcaADMM import rpcaADMM
+from spca import spca
 
 
 def bitmap_to_mat(bitmap_seq):
@@ -48,13 +49,14 @@ if __name__ == "__main__":
     print(M.shape)
 
     t = time.time()
-    A, E = inexact_augmented_lagrange_multiplier(M/255.)
-    L = np.array([np.reshape(Ai, shape) for Ai in A])*255.
-    S = np.array([np.reshape(Ei, shape) for Ei in E])*255.
+    L, S = spca(M)
+    # A, E = inexact_augmented_lagrange_multiplier(M/255.)
+    # L = np.array([np.reshape(Ai, shape) for Ai in A])*255.
+    # S = np.array([np.reshape(Ei, shape) for Ei in E])*255.
 
     # L, S = rpca(M)
 
-    # L, S, (u, s, v) = pcp(M, maxiter=50, verbose=True, svd_method="sparse")
+    # L, S, (u, s, v) = pcp(M, maxiter=50, verbose=True, svd_method="exact")
 
     # rpca = R_pca(M)
     # L, S = rpca.fit(max_iter=100, iter_print=100)
@@ -68,10 +70,10 @@ if __name__ == "__main__":
     delta_t = (time.time() - t) * 1000
     print("Total time: {:.5f} ms".format(delta_t))
 
-    # threshold = filters.threshold_isodata(S)
-    # S = S > threshold
+    threshold = filters.threshold_isodata(S)
+    S = S > threshold
 
-    output_dir = 'resultsialm'
+    output_dir = 'results-spca'
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
