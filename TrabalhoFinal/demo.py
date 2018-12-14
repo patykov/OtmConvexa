@@ -2,11 +2,12 @@ from __future__ import division, print_function
 import os
 import sys
 import glob
-import matplotlib.pyplot as pl
+import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 
-from pcp import pcp
+from pcp2 import pcp
+from r_pca import R_pca
 
 
 def bitmap_to_mat(bitmap_seq):
@@ -43,9 +44,17 @@ if __name__ == "__main__":
     sorted_list = sorted(files_list, key=lambda x: int(x.split(os.sep)[-1].replace('.jpg', '')))
     M, shape = bitmap_to_mat(sorted_list)
     print(M.shape)
-    L, S, (u, s, v) = pcp(M, maxiter=50, verbose=True, svd_method="exact")
 
-    fig, axes = pl.subplots(1, 3, figsize=(10, 4))
+    # L, S, (u, s, v) = pcp(M, maxiter=50, verbose=True, svd_method="exact")
+
+    # rpca = R_pca(M)
+    # L, S = rpca.fit(max_iter=10000, iter_print=100)
+    # rpca.plot_fit()
+    # plt.show()
+
+    L, S = pcp(M)
+
+    fig, axes = plt.subplots(1, 3, figsize=(10, 4))
     fig.subplots_adjust(left=0, right=1, hspace=0, wspace=0.01)
     for i in range(min(len(M), 500)):
         do_plot(axes[0], M[i], shape)
