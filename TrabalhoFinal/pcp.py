@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """
+https://github.com/dfm/pcp/blob/master/pcp.py
 An implementation of the Principal Component Pursuit algorithm for robust PCA
 as described in `Candes, Li, Ma, & Wright <http://arxiv.org/abs/0912.3599>`_.
 An alternative Python implementation using non-standard dependencies and
