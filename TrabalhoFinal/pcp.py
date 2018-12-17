@@ -14,7 +14,7 @@ def my_pcp(M, f_shape, delta=1e-3, maxiter=50, connected=True, verbose=True):
     neigh = 0.05*np.array(f_shape)
     mu = 0.25 * np.prod(shape) / np.sum(np.abs(M))
     print("mu = {0}".format(mu))
-    lamb2 = 10**(-4)
+    lamb2 = 10**(-3)
 
     # Convergence criterion.
     norm = np.sum(M ** 2)
@@ -53,12 +53,6 @@ def my_pcp(M, f_shape, delta=1e-3, maxiter=50, connected=True, verbose=True):
 
                         norm2_block = np.linalg.norm(diff, ord=2)
                         prod_fij = - lamb2 * diff/(norm2_block if norm2_block > 0 else 1)
-
-                        # new_f[x_min:x_max, y_min:y_max] += lamb2 * block/(
-                        #     norm2_block if norm2_block > 0 else 1)
-
-                        # w = np.exp(-(diff_m**2)/sigma)
-                        # prod_fij = w * lamb2 * np.sign(diff_f)
 
                         new_f[x_min:x_max, y_min:y_max] += prod_fij
                         new_f[i, j] -= sum(sum(prod_fij))

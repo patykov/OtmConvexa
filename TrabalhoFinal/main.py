@@ -28,7 +28,7 @@ def bitmap_to_mat(bitmap_seq):
 if __name__ == "__main__":
     dataset = 2
 
-    if dataset == 1:
+    if dataset == 1:  # Wallflower
         frames_dir = "C:/Users/v-pakova/source/repos/OtmConvexa/TrabalhoFinal/dataset/" \
                     "MovedObject"
         files_list = glob.glob("{}/*.bmp".format(frames_dir))
@@ -36,12 +36,13 @@ if __name__ == "__main__":
             os.path.basename(x).replace('.bmp', '').replace('b', '')))[1380:1440]
 
     elif dataset == 2:
-        frames_dir = "E:/TCC/Datasets/UCF-101_rgb/BodyWeightSquats/v_BodyWeightSquats_g01_c01.avi/"
+        frames_dir = "C:/Users/v-pakova/source/repos/OtmConvexa/TrabalhoFinal/dataset/" \
+                    "winterDriveway/input"
         files_list = glob.glob("{}/*.jpg".format(frames_dir))
         sorted_list = sorted(files_list, key=lambda x: int(
-            os.path.basename(x).replace('.jpg', '')))[:60]
+            os.path.basename(x).replace('.jpg', '').replace('in', '')))[1800:1860]
 
-    elif dataset == 3:
+    elif dataset == 3:  # ucf101
         frames_dir = "C:/Users/v-pakova/source/repos/OtmConvexa/TrabalhoFinal/dataset/" \
                     "capoeira"
         files_list = glob.glob("{}/*.jpg".format(frames_dir))
@@ -53,7 +54,7 @@ if __name__ == "__main__":
 
     t = time.time()
 
-    L, S = my_pcp(M, shape, connected=True)
+    L, S = my_pcp(M, shape, connected=False)
 
     delta_t = (time.time() - t) * 1000
     print("Total time: {:.5f} ms".format(delta_t))
@@ -62,7 +63,7 @@ if __name__ == "__main__":
     St = S < threshold
     St = np.array(St, dtype=np.float32)*255
 
-    output_dir = 'data{}-result-pcp-block-10-4'.format(dataset)
+    output_dir = 'data{}-result-pcp'.format(dataset)
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
