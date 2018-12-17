@@ -1,6 +1,10 @@
 Livros/
 TrabalhoFinal/Papers
 TrabalhoFinal/dataset
+old-results/
+results*/
+data*/
+capoeira/
 *.zip
 *.pyc
 *.vscode
